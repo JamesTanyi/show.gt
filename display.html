@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>幕启 · 演出</title>
+<style>
+@import url('app://app/node_modules/@fontsource/ma-shan-zheng/index.css');
+@import url('app://app/node_modules/@fontsource/fraunces/400.css');
+@import url('app://app/node_modules/@fontsource/fraunces/700.css');
+
+:root{
+  --bg:#0E0B10;
+  --burgundy:#7A1F3D;
+  --burgundy-light:#9C2F52;
+  --gold:#C9A227;
+  --gold-light:#E4C55A;
+  --cream:#EDE3D0;
+  --muted:#8A7F8C;
+  --font-display:'Fraunces','Noto Serif SC','SimSun',serif;
+  --font-body:'Inter','Segoe UI','Microsoft YaHei',sans-serif;
+  --font-mono:'JetBrains Mono','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-family:var(--font-body);overflow:hidden;}
+
+/* ---- Welcome / curtain ---- */
+#welcome{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 30%, #241627 0%, #0E0B10 65%);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .8s ease;
+  z-index:10;
+}
+#welcome.hidden{opacity:0;pointer-events:none;}
+
+.curtain{position:absolute;top:0;bottom:0;width:52%;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0) 12%),
+    repeating-linear-gradient(90deg, var(--burgundy) 0 22px, var(--burgundy-light) 22px 40px);
+  box-shadow:inset -40px 0 60px -20px rgba(0,0,0,0.6);
+  transition:transform 1.1s cubic-bezier(.77,0,.18,1);
+}
+.curtain::after{content:'';position:absolute;left:0;right:0;bottom:0;height:26px;
+  background:repeating-linear-gradient(90deg, transparent 0 14px, var(--gold) 14px 16px);
+  opacity:.55;}
+.curtain-left{left:0;transform-origin:left;}
+.curtain-right{right:0;transform-origin:right;}
+.curtain-left.open{transform:translateX(-102%);}
+.curtain-right.open{transform:translateX(102%);}
+
+.welcome-content{position:relative;z-index:10;text-align:center;padding:40px;width:100%;max-width:1400px;}
+.hospital-logo{max-width:180px;max-height:180px;object-fit:contain;margin:0 auto 8px;display:block;filter:drop-shadow(0 4px 16px rgba(0,0,0,.5));}
+.title-arc{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 24px rgba(0,0,0,.5));}
+.arc-text{font-family:'Fraunces','Noto Serif SC',serif;font-weight:700;font-style:italic;font-size:100px;letter-spacing:1px;fill:var(--gold-light);}
+.welcome-sub{margin-top:80px;color:var(--cream);opacity:.8;}
+.hospital-name-line{margin-top:-54px;font-family:'Fraunces','Noto Serif SC',serif;font-weight:400;font-style:italic;font-size:28px;letter-spacing:.06em;color:var(--cream);opacity:.9;}
+.welcome-sub p{margin:0;font-size:22px;letter-spacing:.3em;font-family:'Ma Shan Zheng','Noto Serif SC',cursive;}
+
+/* ---- Logo snowflakes ---- */
+#snowflakes{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden;}
+.flake{position:absolute;top:0;object-fit:contain;will-change:transform,opacity;animation:flake-fall linear infinite;}
+@keyframes flake-fall{
+  0%  {transform:translateY(-90px) translateX(0)           rotate(0deg);           opacity:0;}
+  6%  {opacity:1;}
+  30% {transform:translateY(30vh)  translateX(var(--sx))   rotate(calc(var(--r)*0.3));}
+  60% {transform:translateY(62vh)  translateX(calc(var(--sx)*-0.6)) rotate(calc(var(--r)*0.7));}
+  93% {opacity:0.7;}
+  100%{transform:translateY(112vh) translateX(0)           rotate(var(--r));        opacity:0;}
+}
+
+/* ---- Stage ---- */
+#stage{
+  position:absolute;inset:0;
+  display:flex;align-items:flex-end;
+  overflow:hidden;
+}
+#stage::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.8) 100%);z-index:1;}
+
+/* Animated image background (Ken Burns effect) */
+#bgImage{
+  position:absolute;inset:-8%;   /* extra space so panning never shows edge */
+  width:116%;height:116%;
+  background-size:cover;background-position:center;
+  display:none;
+  will-change:transform;
+}
+
+/* Four Ken Burns variants — each fires once, then holds at final frame */
+@keyframes kb-zoom-in  { from{transform:scale(1.0) translate(0%,0%)} to{transform:scale(1.15) translate(-2%,-1.5%)} }
+@keyframes kb-zoom-out { from{transform:scale(1.15) translate(-1.5%,1%)} to{transform:scale(1.0) translate(1%,-0.5%)} }
+@keyframes kb-pan-r    { from{transform:scale(1.1) translate(-3%,0%)} to{transform:scale(1.1) translate(3%,0%)} }
+@keyframes kb-pan-l    { from{transform:scale(1.1) translate(3%,0.5%)} to{transform:scale(1.1) translate(-3%,-0.5%)} }
+
+#bgImage.kb-a{animation:kb-zoom-in  28s ease-in-out both;}
+#bgImage.kb-b{animation:kb-zoom-out 28s ease-in-out both;}
+#bgImage.kb-c{animation:kb-pan-r    32s linear       both;}
+#bgImage.kb-d{animation:kb-pan-l    32s linear       both;}
+
+#bgVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+.stage-frame{position:absolute;inset:20px;border:1px solid rgba(201,162,39,.3);pointer-events:none;z-index:2;}
+.stage-frame::before,.stage-frame::after{content:'';position:absolute;width:26px;height:26px;border:1px solid var(--gold);}
+.stage-frame::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+.stage-frame::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+.stage-info{position:relative;z-index:2;padding:50px 60px;width:100%;}
+.stage-eyebrow{font-family:var(--font-mono);font-size:13px;letter-spacing:.28em;color:var(--gold-light);text-transform:uppercase;margin-bottom:14px;}
+.stage-title{font-family:var(--font-display);font-size:clamp(36px,5vw,72px);font-weight:700;margin:0 0 12px;line-height:1.15;}
+.stage-performer{font-size:18px;color:rgba(237,227,208,.7);letter-spacing:.04em;}
+</style>
+</head>
+<body>
+
+<!-- Welcome screen -->
+<div id="welcome">
+  <div class="curtain curtain-left" id="curtainLeft"></div>
+  <div class="curtain curtain-right" id="curtainRight"></div>
+  <div id="snowflakes"></div>
+  <div class="welcome-content">
+    <img id="hospitalLogo" class="hospital-logo" style="display:none !important;" alt="">
+    <svg class="title-arc" viewBox="0 0 2000 900" preserveAspectRatio="xMidYMid meet">
+      <defs><path id="arcPath" d="M 150 560 Q 1000 40 1850 560" fill="none"/></defs>
+      <text class="arc-text">
+        <textPath href="#arcPath" startOffset="50%" text-anchor="middle" textLength="1650" lengthAdjust="spacingAndGlyphs" id="arcText">Herbstkühle · Benefizkonzert</textPath>
+      </text>
+    </svg>
+    <p id="hospitalNameLine" class="hospital-name-line"></p>
+    <div class="welcome-sub">
+      <p id="titleZhLine"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Stage display -->
+<div id="stage">
+  <div id="bgImage"></div>
+  <video id="bgVideo" autoplay loop muted playsinline></video>
+  <div class="stage-frame"></div>
+  <div class="stage-info">
+    <div class="stage-eyebrow" id="stageOrder"></div>
+    <h2 class="stage-title" id="stageName"></h2>
+    <div class="stage-performer" id="stagePerformer"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const welcome       = document.getElementById('welcome');
+  const curtainLeft   = document.getElementById('curtainLeft');
+  const curtainRight  = document.getElementById('curtainRight');
+  const hospitalLogo  = document.getElementById('hospitalLogo');
+  const arcTextEl     = document.getElementById('arcText');
+  const hospitalNameEl = document.getElementById('hospitalNameLine');
+  const titleZhLineEl = document.getElementById('titleZhLine');
+  const stage         = document.getElementById('stage');
+  const bgImage       = document.getElementById('bgImage');
+  const bgVideo       = document.getElementById('bgVideo');
+  const stageOrder    = document.getElementById('stageOrder');
+  const stageName     = document.getElementById('stageName');
+  const stagePerformer = document.getElementById('stagePerformer');
+
+  let curtainOpen = false;
+  const KB_CLASSES = ['kb-a', 'kb-b', 'kb-c', 'kb-d'];
+  let kbIdx = 0;
+  let snowflakesLogoPath = null;
+
+  function toFileUrl(p) { return 'file:///' + p.replace(/\\/g, '/'); }
+
+  // ---- Remove light/white background from image via Canvas ----
+  function makeTransparentDataUrl(src) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        try {
+          const id = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const d = id.data;
+          for (let i = 0; i < d.length; i += 4) {
+            const r = d[i], g = d[i+1], b = d[i+2];
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            const sat = Math.max(r,g,b) === 0 ? 0 : (Math.max(r,g,b) - Math.min(r,g,b)) / Math.max(r,g,b);
+            // Erase pixels that are light (brightness > 155) and low-saturation (greyish/white)
+            if (brightness > 155 && sat < 0.28) d[i+3] = 0;
+          }
+          ctx.putImageData(id, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        } catch (_) { resolve(src); }
+      };
+      img.onerror = () => resolve(src);
+      img.src = src;
+    });
+  }
+
+  // ---- Spawn logo snowflakes ----
+  const snowflakesEl = document.getElementById('snowflakes');
+
+  async function startSnowflakes(logoPath) {
+    snowflakesEl.innerHTML = '';
+    if (!logoPath) return;
+    const dataUrl = await makeTransparentDataUrl(toFileUrl(logoPath));
+    const COUNT = 26;
+    for (let i = 0; i < COUNT; i++) {
+      const img = document.createElement('img');
+      img.className = 'flake';
+      img.src = dataUrl;
+      img.alt = '';
+      const size    = 56 + Math.random() * 104;         // 56 – 160 px
+      const left    = Math.random() * 100;               // 0 – 100 vw
+      const dur     = 18 + Math.random() * 22;           // 18 – 40 s
+      const delay   = -(Math.random() * dur);            // already mid-fall on load
+      const sway    = (Math.random() - 0.5) * 260;      // ± 130 px horizontal sway
+      const rot     = (Math.random() - 0.5) * 400;      // ± 200 deg rotation
+      const opacity = 0.35 + Math.random() * 0.55;      // 0.35 – 0.9
+      img.style.cssText =
+        `width:${size}px;height:${size}px;left:${left}%;opacity:${opacity};` +
+        `animation-duration:${dur}s;animation-delay:${delay}s;` +
+        `--sx:${sway}px;--r:${rot}deg;`;
+      snowflakesEl.appendChild(img);
+    }
+  }
+
+  function applySettings(s) {
+    arcTextEl.textContent      = s.titleDE || 'Herbstkühle · Benefizkonzert';
+    hospitalNameEl.textContent = s.hospitalName || '';
+    titleZhLineEl.textContent  = s.titleZH || '';
+    if (s.logoPath) {
+      hospitalLogo.src = toFileUrl(s.logoPath);
+      // logo shown only as snowflakes, not as a fixed header image
+      if (s.logoPath !== snowflakesLogoPath) {
+        snowflakesLogoPath = s.logoPath;
+        startSnowflakes(s.logoPath);
+      }
+    } else {
+      hospitalLogo.style.display = 'none';
+      snowflakesLogoPath = null;
+      snowflakesEl.innerHTML = '';
+    }
+  }
+
+  function openCurtain(cb) {
+    if (curtainOpen) { cb && cb(); return; }
+    curtainLeft.classList.add('open');
+    curtainRight.classList.add('open');
+    curtainOpen = true;
+    setTimeout(() => {
+      welcome.classList.add('hidden');
+      cb && cb();
+    }, 1100);
+  }
+
+  function showStage(program) {
+    const isMultiTrack = program.trackTotal > 1;
+    if (isMultiTrack && program.trackTitle) {
+      // Multi-song program: show individual song title + act number
+      stageOrder.textContent = `第 ${String(program.index).padStart(2,'0')} 场 · ${program.trackIndex} / ${program.trackTotal}`;
+      stageName.textContent  = program.trackTitle;
+    } else {
+      stageOrder.textContent = `第 ${String(program.index).padStart(2,'0')} 场`;
+      stageName.textContent  = program.name || '未命名节目';
+    }
+    stagePerformer.textContent = program.performer || '';
+
+    if (program.bgVideoPath) {
+      // Video: hide image layer, play video
+      bgImage.style.display = 'none';
+      const url = toFileUrl(program.bgVideoPath);
+      if (bgVideo.src !== url) { bgVideo.src = url; bgVideo.load(); }
+      bgVideo.style.display = 'block';
+      stage.style.backgroundColor = '#0E0B10';
+    } else if (program.bgImagePath) {
+      // Image: hide video, apply Ken Burns animation
+      bgVideo.pause(); bgVideo.src = ''; bgVideo.style.display = 'none';
+      bgImage.style.backgroundImage = `url("${toFileUrl(program.bgImagePath)}")`;
+      bgImage.style.display = 'block';
+      // Cycle through 4 animation variants; restart by forcing reflow
+      KB_CLASSES.forEach(c => bgImage.classList.remove(c));
+      void bgImage.offsetWidth;
+      bgImage.classList.add(KB_CLASSES[kbIdx % KB_CLASSES.length]);
+      kbIdx++;
+      stage.style.backgroundColor = '#0E0B10';
+    } else {
+      // Solid colour fallback
+      bgVideo.pause(); bgVideo.src = ''; bgVideo.style.display = 'none';
+      bgImage.style.display = 'none';
+      stage.style.backgroundColor = program.bgColor || '#7A1F3D';
+    }
+  }
+
+  // Listen for state updates from control window via main process
+  window.displayAPI.onState((state) => {
+    if (state.settings) applySettings(state.settings);
+
+    if (state.mode === 'welcome') {
+      // Reset to welcome screen
+      curtainLeft.classList.remove('open');
+      curtainRight.classList.remove('open');
+      curtainOpen = false;
+      welcome.classList.remove('hidden');
+    } else if (state.mode === 'stage' && state.program) {
+      openCurtain(() => showStage(state.program));
+    }
+  });
+
+  // Load initial settings on startup
+  window.displayAPI.getInitialState().then(state => {
+    if (state && state.settings) applySettings(state.settings);
+  });
+})();
+</script>
+</body>
+</html>

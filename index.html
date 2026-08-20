@@ -2,9 +2,8 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<title>幕启 · 演出管理系统</title>
+<title>幕启 · 控制台</title>
 <style>
-/* ---- Local fonts via app:// protocol (served by main process, no CDN) ---- */
 @import url('app://app/node_modules/@fontsource/ma-shan-zheng/index.css');
 @import url('app://app/node_modules/@fontsource/fraunces/400.css');
 @import url('app://app/node_modules/@fontsource/fraunces/600.css');
@@ -16,91 +15,123 @@
   --surface:#1D1620;
   --surface-2:#241C29;
   --burgundy:#7A1F3D;
-  --burgundy-light:#9C2F52;
   --gold:#C9A227;
   --gold-light:#E4C55A;
   --cream:#EDE3D0;
   --muted:#8A7F8C;
-  --line: rgba(201,162,39,0.16);
+  --line:rgba(201,162,39,0.16);
   --font-display:'Fraunces','Noto Serif SC','SimSun',serif;
-  --font-body:'Inter','Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
-  --font-mono:'JetBrains Mono','Consolas','Courier New',monospace;
+  --font-body:'Inter','Segoe UI','Microsoft YaHei',sans-serif;
+  --font-mono:'JetBrains Mono','Consolas',monospace;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--cream);font-family:var(--font-body);overflow:hidden;}
 button{font-family:inherit;cursor:pointer;}
-input,textarea,select{font-family:inherit;}
+input,textarea{font-family:inherit;}
 ::selection{background:var(--gold);color:#1a1420;}
 
-#app{position:relative;width:100%;height:100vh;}
-.screen{position:absolute;inset:0;}
-.hidden{display:none !important;}
+/* ---- Shell ---- */
+#app{display:flex;flex-direction:column;height:100vh;}
 
-/* ---- Welcome ---- */
-.welcome{background:radial-gradient(ellipse at 50% 30%, #241627 0%, #0E0B10 65%);display:flex;align-items:center;justify-content:center;}
-.curtain{position:absolute;top:0;bottom:0;width:52%;background:
-    linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0) 12%),
-    repeating-linear-gradient(90deg, var(--burgundy) 0 22px, var(--burgundy-light) 22px 40px);
-  box-shadow: inset -40px 0 60px -20px rgba(0,0,0,0.6);
-  transition: transform 1.1s cubic-bezier(.77,0,.18,1);
-  z-index:1;
-}
-.curtain::after{content:'';position:absolute;left:0;right:0;bottom:0;height:26px;
-  background: repeating-linear-gradient(90deg, transparent 0 14px, var(--gold) 14px 16px);
-  opacity:.55;
-}
-.curtain-left{left:0;transform-origin:left;}
-.curtain-right{right:0;transform-origin:right;}
-.curtain-left.open{transform:translateX(-102%);}
-.curtain-right.open{transform:translateX(102%);}
-
-.welcome-content{position:relative;z-index:10;text-align:center;padding:40px;width:100%;max-width:1400px;}
-.title-arc{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 24px rgba(0,0,0,.5));}
-.arc-text{font-family:'Ma Shan Zheng','Noto Serif SC',cursive;font-size:210px;fill:var(--gold-light);}
-.welcome-sub{margin-top:-30px;color:var(--cream);opacity:.85;}
-.welcome-sub p{margin:6px 0;font-size:17px;letter-spacing:.22em;font-family:var(--font-body);}
-
-#welcomeHint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
-  font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:.2em;
-  opacity:0;transition:opacity .5s;pointer-events:none;z-index:20;}
-
-/* ---- Console ---- */
-.console{background:var(--bg);display:none;flex-direction:column;height:100vh;}
-.console.active{display:flex;}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 26px;border-bottom:1px solid var(--line);background:var(--bg-2);flex:0 0 auto;}
-.topbar .brand{display:flex;align-items:baseline;gap:12px;}
-.topbar .brand h1{font-family:var(--font-display);font-size:22px;font-weight:600;margin:0;letter-spacing:.02em;}
-.topbar .brand span{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.12em;}
-.topbar-actions{display:flex;gap:10px;}
-.icon-btn{background:var(--surface);border:1px solid var(--line);color:var(--cream);padding:9px 16px;border-radius:3px;font-size:13px;display:flex;align-items:center;gap:8px;letter-spacing:.03em;transition:.2s;}
+/* ---- Topbar ---- */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--bg-2);flex:0 0 auto;}
+.brand{display:flex;align-items:baseline;gap:12px;}
+.brand h1{font-family:var(--font-display);font-size:20px;font-weight:600;margin:0;}
+.brand span{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.12em;}
+.topbar-actions{display:flex;gap:8px;}
+.icon-btn{background:var(--surface);border:1px solid var(--line);color:var(--cream);padding:8px 14px;border-radius:3px;font-size:13px;display:flex;align-items:center;gap:7px;letter-spacing:.03em;transition:.2s;}
 .icon-btn:hover{border-color:var(--gold);color:var(--gold-light);}
+.icon-btn.active{border-color:var(--gold);color:var(--gold-light);background:var(--surface-2);}
 
-.main-grid{flex:1 1 auto;display:grid;grid-template-columns:360px 1fr;min-height:0;}
+/* ---- Main grid: sidebar + right panel ---- */
+.main-grid{flex:1 1 auto;display:grid;grid-template-columns:340px 1fr;min-height:0;}
 
 /* ---- Sidebar ---- */
 .sidebar{border-right:1px solid var(--line);background:var(--bg-2);display:flex;flex-direction:column;min-height:0;}
-.sidebar-head{padding:18px 20px 12px;border-bottom:1px solid var(--line);}
-.sidebar-head h2{font-family:var(--font-display);font-size:16px;margin:0 0 4px;font-weight:600;}
+.sidebar-head{padding:16px 20px 10px;border-bottom:1px solid var(--line);}
+.sidebar-head h2{font-family:var(--font-display);font-size:15px;margin:0 0 3px;font-weight:600;}
 .sidebar-head p{margin:0;font-size:12px;color:var(--muted);}
-.program-list{flex:1;overflow-y:auto;padding:10px 12px;}
-.program-item{display:flex;gap:12px;padding:12px 12px;border-radius:4px;border:1px solid transparent;margin-bottom:6px;cursor:pointer;transition:.15s;position:relative;}
+.program-list{flex:1;overflow-y:auto;padding:8px 10px;}
+.program-item{display:flex;gap:10px;padding:10px 10px;border-radius:4px;border:1px solid transparent;margin-bottom:5px;cursor:pointer;transition:.15s;}
 .program-item:hover{background:var(--surface);}
 .program-item.current{background:var(--surface-2);border-color:var(--gold);}
-.program-num{font-family:var(--font-mono);font-size:12px;color:var(--gold);min-width:22px;padding-top:2px;}
+.program-item.dragging{opacity:.35;}
+.program-item.drag-over-top{box-shadow:inset 0 2px 0 var(--gold);}
+.program-item.drag-over-bottom{box-shadow:inset 0 -2px 0 var(--gold);}
+.drag-handle{color:var(--muted);font-size:13px;cursor:grab;padding-top:2px;user-select:none;}
+.drag-handle:active{cursor:grabbing;}
+.program-num{font-family:var(--font-mono);font-size:11px;color:var(--gold);min-width:20px;padding-top:2px;}
 .program-info{flex:1;min-width:0;}
-.program-info .pname{font-size:14px;font-weight:600;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.program-info .pperformer{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.program-meta{display:flex;gap:6px;margin-top:6px;}
-.tag{font-size:10px;font-family:var(--font-mono);padding:2px 6px;border-radius:2px;border:1px solid var(--line);color:var(--muted);}
+.pname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pperformer{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.program-meta{display:flex;gap:5px;margin-top:5px;}
+.tag{font-size:10px;font-family:var(--font-mono);padding:1px 5px;border-radius:2px;border:1px solid var(--line);color:var(--muted);}
 .tag.on{color:var(--gold-light);border-color:var(--gold);}
-.item-actions{display:flex;flex-direction:column;gap:4px;opacity:0;transition:.15s;}
+.item-actions{display:flex;flex-direction:column;gap:3px;opacity:0;transition:.15s;}
 .program-item:hover .item-actions{opacity:1;}
-.mini-btn{background:none;border:none;color:var(--muted);font-size:13px;padding:2px 4px;line-height:1;}
+.mini-btn{background:none;border:none;color:var(--muted);font-size:12px;padding:2px 4px;line-height:1;cursor:pointer;}
 .mini-btn:hover{color:var(--gold-light);}
-
-.sidebar-foot{padding:14px 16px;border-top:1px solid var(--line);}
-.btn-add{width:100%;background:transparent;border:1px dashed var(--line);color:var(--muted);padding:11px;border-radius:4px;font-size:13px;letter-spacing:.04em;}
+.sidebar-foot{padding:12px 14px;border-top:1px solid var(--line);}
+.btn-add{width:100%;background:transparent;border:1px dashed var(--line);color:var(--muted);padding:10px;border-radius:4px;font-size:13px;letter-spacing:.04em;cursor:pointer;}
 .btn-add:hover{border-color:var(--gold);color:var(--gold-light);}
+
+/* ---- Track row (current panel) ---- */
+.track-row{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12px;color:var(--muted);}
+.track-row.hidden{display:none;}
+.mini-track-btn{background:var(--surface);border:1px solid var(--line);color:var(--cream);padding:3px 9px;border-radius:3px;font-size:12px;cursor:pointer;}
+.mini-track-btn:hover{border-color:var(--gold);color:var(--gold-light);}
+.track-info{font-family:var(--font-mono);letter-spacing:.03em;}
+
+/* ---- Track list editor (drawer) ---- */
+.track-list-edit{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+.track-edit-item{display:flex;align-items:center;gap:8px;background:var(--bg-2);border:1px solid var(--line);border-radius:3px;padding:6px 8px;}
+.track-edit-item input[type=checkbox]{accent-color:var(--gold);width:15px;height:15px;flex:0 0 auto;cursor:pointer;}
+.track-edit-item .track-num{font-family:var(--font-mono);font-size:11px;color:var(--gold);min-width:16px;}
+.track-edit-item .track-name{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.track-edit-item.disabled .track-name{color:var(--muted);text-decoration:line-through;opacity:.6;}
+.track-edit-item .track-actions{display:flex;gap:2px;}
+.track-empty-hint{font-size:12px;color:var(--muted);padding:6px 2px;}
+.track-bg-row{display:flex;align-items:center;gap:5px;margin-top:4px;padding-left:20px;flex-wrap:wrap;}
+.track-bg-info{font-size:10px;font-family:var(--font-mono);color:var(--muted);flex:1;}
+.track-bg-info.set{color:var(--gold-light);}
+
+/* ---- Right panel ---- */
+.right-panel{display:flex;flex-direction:column;min-height:0;background:var(--bg);}
+
+/* Current program display */
+.current-panel{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 48px;position:relative;overflow:hidden;}
+.current-panel .bg-blur{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  opacity:.18;filter:blur(10px);transform:scale(1.05);
+  pointer-events:none;transition:background-image .3s;
+}
+.current-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.25em;color:var(--gold-light);margin-bottom:12px;}
+.current-title{font-family:var(--font-display);font-size:clamp(28px,3.5vw,52px);font-weight:700;margin:0 0 10px;line-height:1.2;position:relative;}
+.current-performer{font-size:15px;color:var(--muted);position:relative;}
+.empty-hint{color:var(--muted);font-family:var(--font-display);font-size:18px;}
+
+/* Next program preview */
+.next-bar{background:var(--bg-2);border-top:1px solid var(--line);padding:12px 48px;display:flex;align-items:center;gap:16px;flex:0 0 auto;}
+.next-label{font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:.15em;flex:0 0 auto;}
+.next-name{font-size:13px;color:var(--cream);opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* ---- Player ---- */
+.player{flex:0 0 auto;background:var(--bg-2);border-top:1px solid var(--line);padding:12px 48px 16px;}
+.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.time{font-family:var(--font-mono);font-size:12px;color:var(--muted);min-width:44px;}
+.time.end{text-align:right;}
+input[type=range]{-webkit-appearance:none;appearance:none;height:3px;background:var(--line);border-radius:2px;flex:1;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--gold);cursor:pointer;}
+.controls-row{display:flex;align-items:center;justify-content:space-between;}
+.transport{display:flex;align-items:center;gap:16px;}
+.transport button{background:none;border:none;color:var(--cream);font-size:18px;padding:6px;cursor:pointer;}
+.transport button:hover{color:var(--gold-light);}
+.play-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--gold) !important;display:flex;align-items:center;justify-content:center;font-size:15px !important;}
+.play-btn:hover{background:var(--gold);color:#1a1420 !important;}
+.volume-row{display:flex;align-items:center;gap:8px;width:140px;}
+.vol-icon{font-size:13px;color:var(--muted);}
+.no-audio-hint{font-size:11px;color:var(--muted);font-family:var(--font-mono);}
 
 /* ---- Editor drawer ---- */
 .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none;align-items:center;justify-content:center;}
@@ -115,262 +146,191 @@ input,textarea,select{font-family:inherit;}
 .swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;}
 .swatch.sel{border-color:var(--gold-light);}
 .filerow{display:flex;align-items:center;gap:10px;}
-.filerow label.filebtn{background:var(--bg-2);border:1px solid var(--line);padding:9px 14px;border-radius:3px;font-size:12px;color:var(--cream);cursor:pointer;}
+.filerow label.filebtn{background:var(--bg-2);border:1px solid var(--line);padding:8px 13px;border-radius:3px;font-size:12px;color:var(--cream);cursor:pointer;}
 .filerow label.filebtn:hover{border-color:var(--gold);}
 .filerow input[type=file]{display:none;}
 .filename{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
 .drawer-actions{display:flex;justify-content:space-between;margin-top:22px;gap:10px;}
-.btn-danger{background:none;border:1px solid rgba(220,90,90,.4);color:#e08080;padding:9px 16px;border-radius:3px;font-size:13px;}
+.btn-danger{background:none;border:1px solid rgba(220,90,90,.4);color:#e08080;padding:8px 14px;border-radius:3px;font-size:13px;cursor:pointer;}
 .btn-danger:hover{background:rgba(220,90,90,.12);}
-.btn-primary{background:var(--gold);border:1px solid var(--gold);color:#1a1420;padding:9px 20px;border-radius:3px;font-size:13px;font-weight:600;letter-spacing:.03em;}
+.btn-primary{background:var(--gold);border:1px solid var(--gold);color:#1a1420;padding:8px 18px;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;}
 .btn-primary:hover{background:var(--gold-light);}
 
-/* ---- Stage ---- */
-.stage-wrap{position:relative;display:flex;flex-direction:column;min-height:0;background:#000;}
-.stage{flex:1;position:relative;background-size:cover;background-position:center;display:flex;align-items:flex-end;}
-.stage::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.75) 100%);}
-.stage-frame{position:absolute;inset:14px;border:1px solid rgba(201,162,39,.35);pointer-events:none;}
-.stage-frame::before,.stage-frame::after{content:'';position:absolute;width:22px;height:22px;border:1px solid var(--gold);}
-.stage-frame::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
-.stage-frame::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
-.stage-info{position:relative;z-index:2;padding:34px 40px;width:100%;}
-.stage-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.24em;color:var(--gold-light);text-transform:uppercase;margin-bottom:10px;}
-.stage-title{font-family:var(--font-display);font-size:clamp(28px,4vw,52px);font-weight:700;margin:0 0 8px;}
-.stage-performer{font-size:15px;color:var(--muted);letter-spacing:.03em;}
-.empty-stage{position:relative;z-index:2;margin:auto;text-align:center;color:var(--muted);}
-.empty-stage p{font-family:var(--font-display);font-size:20px;}
-
-/* Keyboard shortcut hint in present mode */
-.present-hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
-  font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.15em;
-  z-index:5;pointer-events:none;}
-
-/* ---- Player ---- */
-.player{flex:0 0 auto;background:var(--bg-2);border-top:1px solid var(--line);padding:14px 30px 20px;}
-.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-.time{font-family:var(--font-mono);font-size:12px;color:var(--muted);min-width:44px;}
-.time.end{text-align:right;}
-input[type=range]{-webkit-appearance:none;appearance:none;height:3px;background:var(--line);border-radius:2px;flex:1;outline:none;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 0 3px rgba(201,162,39,.15);}
-.controls-row{display:flex;align-items:center;justify-content:space-between;}
-.transport{display:flex;align-items:center;gap:18px;}
-.transport button{background:none;border:none;color:var(--cream);font-size:18px;padding:6px;}
-.transport button:hover{color:var(--gold-light);}
-.play-btn{width:46px;height:46px;border-radius:50%;border:1px solid var(--gold) !important;display:flex;align-items:center;justify-content:center;font-size:16px !important;}
-.play-btn:hover{background:var(--gold);color:#1a1420 !important;}
-.volume-row{display:flex;align-items:center;gap:8px;width:150px;}
-.volume-row input[type=range]{flex:1;}
-.vol-icon{font-size:14px;color:var(--muted);}
-.no-audio-hint{font-size:11px;color:var(--muted);font-family:var(--font-mono);}
-
-/* ---- Presentation mode ---- */
-.console.present .sidebar,
-.console.present .topbar,
-.console.present .player{display:none;}
-.console.present .main-grid{grid-template-columns:1fr;}
-.console.present .stage-info{padding:60px;}
-.exit-present{position:fixed;top:22px;right:26px;z-index:50;background:rgba(0,0,0,.4);border:1px solid var(--line);color:var(--cream);padding:8px 14px;border-radius:3px;font-size:12px;display:none;}
-.console.present .exit-present{display:block;}
-
-/* ---- Settings modal ---- */
+/* ---- Modals ---- */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:none;align-items:center;justify-content:center;}
 .modal-backdrop.active{display:flex;}
 .modal{width:480px;max-width:92vw;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:28px;max-height:90vh;overflow-y:auto;}
 .modal h3{font-family:var(--font-display);font-size:18px;margin:0 0 20px;}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;}
-
-/* ---- Confirm modal ---- */
 .confirm-modal{width:360px;}
 .confirm-modal p{color:var(--cream);font-size:14px;line-height:1.6;margin:0 0 20px;}
 
-/* ---- Toast notifications ---- */
-#toastContainer{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;}
-.toast{background:var(--surface-2);border:1px solid var(--line);color:var(--cream);padding:10px 20px;border-radius:4px;font-size:13px;font-family:var(--font-mono);letter-spacing:.03em;opacity:0;transform:translateY(10px);transition:.3s;white-space:nowrap;}
+/* ---- Toast ---- */
+#toastContainer{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;}
+.toast{background:var(--surface-2);border:1px solid var(--line);color:var(--cream);padding:9px 18px;border-radius:4px;font-size:12px;font-family:var(--font-mono);opacity:0;transform:translateY(8px);transition:.3s;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateY(0);}
 .toast.toast-error{border-color:rgba(220,90,90,.5);color:#e08080;}
 .toast.toast-warn{border-color:rgba(201,162,39,.5);color:var(--gold-light);}
 
-::-webkit-scrollbar{width:8px;}
-::-webkit-scrollbar-thumb{background:var(--surface-2);border-radius:4px;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-thumb{background:var(--surface-2);border-radius:3px;}
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- ======= WELCOME ======= -->
-  <div class="screen welcome" id="welcome">
-    <div class="curtain curtain-left" id="curtainLeft"></div>
-    <div class="curtain curtain-right" id="curtainRight"></div>
-    <div class="welcome-content">
-      <svg class="title-arc" viewBox="0 0 2000 1000" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <path id="arcPath" d="M 100 780 Q 1000 180 1900 780" fill="none"/>
-        </defs>
-        <text class="arc-text">
-          <textPath href="#arcPath" startOffset="50%" text-anchor="middle" id="arcText">演出管理系统</textPath>
-        </text>
-      </svg>
-      <div class="welcome-sub">
-        <p id="orgLine1"></p>
-        <p id="orgLine2"></p>
-      </div>
+  <!-- ======= TOPBAR ======= -->
+  <div class="topbar">
+    <div class="brand">
+      <h1>幕启 · 控制台</h1>
+      <span id="progIndex">节目 00 / 00</span>
     </div>
-    <div id="welcomeHint">双击进入控制台</div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="rescanBtn">📁 选择文件夹</button>
+      <button class="icon-btn" id="exportBtn">⬇ 导出</button>
+      <button class="icon-btn" id="importBtn">⬆ 导入</button>
+      <button class="icon-btn" id="settingsBtn">⚙ 设置</button>
+      <button class="icon-btn" id="showWelcomeBtn" title="让投影窗口显示欢迎幕布">🎭 幕布</button>
+      <button class="icon-btn" id="welcomeMusicBtn" title="手动播放/暂停开幕背景音乐">🎵 幕间音乐</button>
+      <button class="icon-btn" id="startShowBtn" title="让投影窗口显示当前节目">▣ 演出</button>
+    </div>
   </div>
 
-  <!-- ======= CONSOLE ======= -->
-  <div class="screen console" id="console">
-    <button class="exit-present" id="exitPresent">退出放映 ⎋</button>
+  <!-- ======= MAIN GRID ======= -->
+  <div class="main-grid">
 
-    <div class="topbar">
-      <div class="brand">
-        <h1>幕启 · 控制台</h1>
-        <span id="progIndex">节目 00 / 00</span>
+    <!-- Sidebar: program list -->
+    <div class="sidebar">
+      <div class="sidebar-head">
+        <h2>节目单</h2>
+        <p id="countHint">共 0 个节目</p>
       </div>
-      <div class="topbar-actions">
-        <button class="icon-btn" id="rescanBtn" title="从文件夹批量导入节目">📁 选择文件夹</button>
-        <button class="icon-btn" id="exportBtn" title="导出节目单 JSON">⬇ 导出</button>
-        <button class="icon-btn" id="importBtn" title="导入节目单 JSON">⬆ 导入</button>
-        <button class="icon-btn" id="settingsBtn" title="演出设置">⚙ 设置</button>
-        <button class="icon-btn" id="presentBtn" title="进入放映模式">▣ 放映</button>
+      <div class="program-list" id="programList"></div>
+      <div class="sidebar-foot">
+        <button class="btn-add" id="addBtn">＋ 新增节目</button>
       </div>
     </div>
 
-    <div class="main-grid">
-      <div class="sidebar">
-        <div class="sidebar-head">
-          <h2>节目单</h2>
-          <p id="countHint">共 0 个节目</p>
-        </div>
-        <div class="program-list" id="programList"></div>
-        <div class="sidebar-foot">
-          <button class="btn-add" id="addBtn">＋ 新增节目</button>
+    <!-- Right: current program info + player -->
+    <div class="right-panel">
+      <div class="current-panel" id="currentPanel">
+        <div class="bg-blur" id="bgBlur"></div>
+        <div class="current-eyebrow" id="currentOrder"></div>
+        <h2 class="current-title" id="currentName"><span class="empty-hint">暂无节目 · 请在左侧新增</span></h2>
+        <div class="current-performer" id="currentPerformer"></div>
+        <div class="track-row hidden" id="trackRow">
+          <button class="mini-track-btn" id="trackPrevBtn" title="上一首">⏮ 上一首</button>
+          <span class="track-info" id="trackInfo"></span>
+          <button class="mini-track-btn" id="trackNextBtn" title="下一首">下一首 ⏭</button>
         </div>
       </div>
 
-      <div class="stage-wrap">
-        <div class="stage" id="stage">
-          <div class="stage-frame"></div>
-          <div class="empty-stage" id="emptyStage">
-            <p>暂无节目 · 请在左侧新增</p>
+      <div class="next-bar" id="nextBar">
+        <span class="next-label">NEXT</span>
+        <span class="next-name" id="nextName">—</span>
+      </div>
+
+      <div class="player">
+        <div class="progress-row">
+          <span class="time" id="curTime">00:00</span>
+          <input type="range" id="seek" min="0" max="100" value="0" step="0.1">
+          <span class="time end" id="durTime">00:00</span>
+        </div>
+        <div class="controls-row">
+          <div class="transport">
+            <button id="prevBtn" title="上一个 (←)">⏮</button>
+            <button id="playBtn" class="play-btn" title="播放/暂停 (空格)">▶</button>
+            <button id="nextBtn" title="下一个 (→)">⏭</button>
           </div>
-          <div class="stage-info hidden" id="stageInfo">
-            <div class="stage-eyebrow" id="stageOrder">第 01 场</div>
-            <h2 class="stage-title" id="stageName">节目名称</h2>
-            <div class="stage-performer" id="stagePerformer">表演者</div>
+          <div class="volume-row">
+            <span class="vol-icon">♪</span>
+            <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8">
           </div>
-          <div class="present-hint" id="presentHint">← → 切换节目 · 空格 播放/暂停 · Esc 退出放映</div>
-        </div>
-
-        <div class="player">
-          <div class="progress-row">
-            <span class="time" id="curTime">00:00</span>
-            <input type="range" id="seek" min="0" max="100" value="0" step="0.1">
-            <span class="time end" id="durTime">00:00</span>
-          </div>
-          <div class="controls-row">
-            <div class="transport">
-              <button id="prevBtn" title="上一个 (←)">⏮</button>
-              <button id="playBtn" class="play-btn" title="播放/暂停 (空格)">▶</button>
-              <button id="nextBtn" title="下一个 (→)">⏭</button>
-            </div>
-            <div class="volume-row">
-              <span class="vol-icon">♪</span>
-              <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8">
-            </div>
-            <span class="no-audio-hint" id="audioHint">未设置音乐</span>
-          </div>
+          <span class="no-audio-hint" id="audioHint">未设置音乐</span>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ======= EDITOR DRAWER ======= -->
-  <div class="drawer-backdrop" id="drawerBackdrop">
-    <div class="drawer">
-      <h3 id="drawerTitle">新增节目</h3>
-      <div class="field">
-        <label>节目名称</label>
-        <input type="text" id="fName" placeholder="例如：开场舞《盛世欢歌》">
+<!-- ======= EDITOR DRAWER ======= -->
+<div class="drawer-backdrop" id="drawerBackdrop">
+  <div class="drawer">
+    <h3 id="drawerTitle">新增节目</h3>
+    <div class="field"><label>节目名称</label><input type="text" id="fName" placeholder="例如：开场舞《盛世欢歌》"></div>
+    <div class="field"><label>表演者 / 单位</label><input type="text" id="fPerformer" placeholder="例如：舞蹈队"></div>
+    <div class="field"><label>背景颜色</label><div class="colorset" id="colorSet"></div></div>
+    <div class="field">
+      <label>背景图片（可选，有视频时被覆盖）</label>
+      <div class="filerow">
+        <label class="filebtn">选择图片<input type="file" id="fImage" accept="image/*"></label>
+        <span class="filename" id="imageName">未选择</span>
       </div>
-      <div class="field">
-        <label>表演者 / 单位</label>
-        <input type="text" id="fPerformer" placeholder="例如：舞蹈队">
+    </div>
+    <div class="field">
+      <label>背景视频（可选，优先于图片，循环播放）</label>
+      <div class="filerow">
+        <label class="filebtn">选择视频<input type="file" id="fVideo" accept="video/*"></label>
+        <span class="filename" id="videoName">未选择</span>
+        <button class="mini-btn" id="clearVideoBtn" title="清除视频" style="opacity:1;font-size:14px;padding:3px 6px;">✕</button>
       </div>
-      <div class="field">
-        <label>背景颜色</label>
-        <div class="colorset" id="colorSet"></div>
-      </div>
-      <div class="field">
-        <label>背景图片（可选）</label>
-        <div class="filerow">
-          <label class="filebtn">选择图片<input type="file" id="fImage" accept="image/*"></label>
-          <span class="filename" id="imageName">未选择</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>节目音乐（可选）</label>
-        <div class="filerow">
-          <label class="filebtn">选择音频<input type="file" id="fAudio" accept="audio/*"></label>
-          <span class="filename" id="audioName">未选择</span>
-        </div>
-      </div>
-      <div class="drawer-actions">
-        <button class="btn-danger" id="deleteBtn">删除节目</button>
-        <div style="display:flex;gap:10px;">
-          <button class="icon-btn" id="cancelBtn">取消</button>
-          <button class="btn-primary" id="saveBtn">保存</button>
-        </div>
+    </div>
+    <div class="field">
+      <label>节目音乐（可添加多首，按列表顺序连续播放——适合一人演唱多首歌）</label>
+      <div class="track-list-edit" id="trackListEdit"></div>
+      <label class="filebtn" style="display:inline-block;">＋ 添加音乐（可一次多选）<input type="file" id="fAudio" accept="audio/*" multiple></label>
+    </div>
+    <div class="drawer-actions">
+      <button class="btn-danger" id="deleteBtn">删除节目</button>
+      <div style="display:flex;gap:10px;">
+        <button class="icon-btn" id="cancelBtn">取消</button>
+        <button class="btn-primary" id="saveBtn">保存</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ======= SETTINGS MODAL ======= -->
-  <div class="modal-backdrop" id="settingsModal">
-    <div class="modal">
-      <h3>演出设置</h3>
-      <div class="field">
-        <label>演出标题（欢迎页弧形大字）</label>
-        <input type="text" id="settingTitle" placeholder="例如：XXX医院慰问演出">
-      </div>
-      <div class="field">
-        <label>主办方第一行</label>
-        <input type="text" id="settingOrg1" placeholder="例如：主办单位：XXX">
-      </div>
-      <div class="field">
-        <label>主办方第二行</label>
-        <input type="text" id="settingOrg2" placeholder="（可留空）">
-      </div>
-      <div class="field">
-        <label>开幕背景音乐</label>
-        <div class="filerow">
-          <label class="filebtn">选择音频<input type="file" id="settingWelcomeMusic" accept="audio/*"></label>
-          <span class="filename" id="settingWelcomeMusicName">未设置</span>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="icon-btn" id="settingsCancelBtn">取消</button>
-        <button class="btn-primary" id="settingsSaveBtn">保存设置</button>
+<!-- ======= SETTINGS MODAL ======= -->
+<div class="modal-backdrop" id="settingsModal">
+  <div class="modal">
+    <h3>演出设置</h3>
+    <div class="field"><label>德语主标题（欢迎页弧形大字，重点突出）</label><input type="text" id="settingTitleDE"></div>
+    <div class="field"><label>医院名称（显示在德语标题下方）</label><input type="text" id="settingHospitalName"></div>
+    <div class="field"><label>中文标题（弧形下方小字）</label><input type="text" id="settingTitleZH"></div>
+    <div class="field">
+      <label>医院 Logo</label>
+      <div class="filerow">
+        <label class="filebtn">选择图片<input type="file" id="settingLogo" accept="image/*"></label>
+        <span class="filename" id="settingLogoName">未设置</span>
+        <button class="mini-btn" id="clearLogoBtn" title="清除 Logo" style="opacity:1;font-size:14px;padding:3px 6px;">✕</button>
       </div>
     </div>
-  </div>
-
-  <!-- ======= CONFIRM MODAL ======= -->
-  <div class="modal-backdrop" id="confirmModal">
-    <div class="modal confirm-modal">
-      <h3>确认操作</h3>
-      <p id="confirmMsg"></p>
-      <div class="modal-actions">
-        <button class="icon-btn" id="confirmCancelBtn">取消</button>
-        <button class="btn-danger" id="confirmOkBtn">确定</button>
-      </div>
+    <div class="field">
+      <label>开幕背景音乐（幕布等待时轮流播放，可添加任意数量）</label>
+      <div class="track-list-edit" id="welcomeMusicListEdit"></div>
+      <label class="filebtn" style="display:inline-block;">＋ 添加音乐（可一次多选）<input type="file" id="settingWelcomeMusic" accept="audio/*" multiple></label>
+    </div>
+    <div class="modal-actions">
+      <button class="icon-btn" id="settingsCancelBtn">取消</button>
+      <button class="btn-primary" id="settingsSaveBtn">保存设置</button>
     </div>
   </div>
+</div>
 
+<!-- ======= CONFIRM MODAL ======= -->
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal confirm-modal">
+    <h3>确认操作</h3>
+    <p id="confirmMsg"></p>
+    <div class="modal-actions">
+      <button class="icon-btn" id="confirmCancelBtn">取消</button>
+      <button class="btn-danger" id="confirmOkBtn">确定</button>
+    </div>
+  </div>
 </div>
 
 <audio id="audioEl" preload="metadata"></audio>
-<audio id="welcomeMusic" preload="auto" loop></audio>
+<audio id="welcomeMusic" preload="auto"></audio>
 <div id="toastContainer"></div>
 
 <script>
@@ -378,56 +338,63 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   'use strict';
 
   const PALETTE = ['#7A1F3D', '#1F3D4A', '#3D2F1F', '#1F4A2E', '#4A1F3D', '#2A2438'];
-
-  let programs = [];
-  let currentId = null;
-  let editingId = null;
+  let programs = [], currentId = null, editingId = null;
   let pendingImagePath = null, pendingImageName = '';
-  let pendingAudioPath = null, pendingAudioName = '';
+  let pendingVideoPath = null, pendingVideoName = '';
+  let pendingAudioTracks = [];
   let pendingColor = PALETTE[0];
   let currentSettings = {};
-  let pendingWelcomeMusicPath = null;
+  let pendingWelcomeMusicTracks = [];
+  let welcomeMusicIndex = 0;
+  let pendingLogoPath = null;
+  let showStarted = false; // whether projection is showing stage (not welcome)
+  let currentTrackIndex = 0;
+  let dragSrcIndex = null;
 
   function cid() { return 'p_' + Math.random().toString(36).slice(2, 9); }
+  function tid() { return 't_' + Math.random().toString(36).slice(2, 9); }
+
+  function getTracks(p) {
+    if (!p) return [];
+    if (Array.isArray(p.audioTracks)) return p.audioTracks;
+    if (p.audioPath) return [{ id: tid(), path: p.audioPath, name: p.audioName || '' }];
+    return [];
+  }
 
   // ---- Element refs ----
-  const welcome        = document.getElementById('welcome');
-  const consoleEl      = document.getElementById('console');
-  const curtainLeft    = document.getElementById('curtainLeft');
-  const curtainRight   = document.getElementById('curtainRight');
-  const welcomeMusic   = document.getElementById('welcomeMusic');
-  const arcTextEl      = document.getElementById('arcText');
-  const orgLine1El     = document.getElementById('orgLine1');
-  const orgLine2El     = document.getElementById('orgLine2');
-  const welcomeHint    = document.getElementById('welcomeHint');
+  const progIndex     = document.getElementById('progIndex');
+  const countHint     = document.getElementById('countHint');
+  const programList   = document.getElementById('programList');
+  const addBtn        = document.getElementById('addBtn');
+  const rescanBtn     = document.getElementById('rescanBtn');
+  const exportBtn     = document.getElementById('exportBtn');
+  const importBtn     = document.getElementById('importBtn');
+  const settingsBtn   = document.getElementById('settingsBtn');
+  const showWelcomeBtn = document.getElementById('showWelcomeBtn');
+  const welcomeMusicBtn = document.getElementById('welcomeMusicBtn');
+  const startShowBtn  = document.getElementById('startShowBtn');
 
-  const programList    = document.getElementById('programList');
-  const countHint      = document.getElementById('countHint');
-  const progIndex      = document.getElementById('progIndex');
-  const addBtn         = document.getElementById('addBtn');
-  const rescanBtn      = document.getElementById('rescanBtn');
-  const exportBtn      = document.getElementById('exportBtn');
-  const importBtn      = document.getElementById('importBtn');
-  const presentBtn     = document.getElementById('presentBtn');
-  const settingsBtn    = document.getElementById('settingsBtn');
-  const exitPresent    = document.getElementById('exitPresent');
+  const currentPanel    = document.getElementById('currentPanel');
+  const bgBlur          = document.getElementById('bgBlur');
+  const currentOrder    = document.getElementById('currentOrder');
+  const currentName     = document.getElementById('currentName');
+  const currentPerformer = document.getElementById('currentPerformer');
+  const nextName        = document.getElementById('nextName');
+  const trackRow         = document.getElementById('trackRow');
+  const trackInfo        = document.getElementById('trackInfo');
+  const trackPrevBtn     = document.getElementById('trackPrevBtn');
+  const trackNextBtn     = document.getElementById('trackNextBtn');
 
-  const stage          = document.getElementById('stage');
-  const emptyStage     = document.getElementById('emptyStage');
-  const stageInfo      = document.getElementById('stageInfo');
-  const stageOrder     = document.getElementById('stageOrder');
-  const stageName      = document.getElementById('stageName');
-  const stagePerformer = document.getElementById('stagePerformer');
-
-  const audioEl        = document.getElementById('audioEl');
-  const playBtn        = document.getElementById('playBtn');
-  const prevBtn        = document.getElementById('prevBtn');
-  const nextBtn        = document.getElementById('nextBtn');
-  const seek           = document.getElementById('seek');
-  const curTime        = document.getElementById('curTime');
-  const durTime        = document.getElementById('durTime');
-  const volume         = document.getElementById('volume');
-  const audioHint      = document.getElementById('audioHint');
+  const audioEl    = document.getElementById('audioEl');
+  const welcomeMusic = document.getElementById('welcomeMusic');
+  const playBtn    = document.getElementById('playBtn');
+  const prevBtn    = document.getElementById('prevBtn');
+  const nextBtn    = document.getElementById('nextBtn');
+  const seek       = document.getElementById('seek');
+  const curTime    = document.getElementById('curTime');
+  const durTime    = document.getElementById('durTime');
+  const volume     = document.getElementById('volume');
+  const audioHint  = document.getElementById('audioHint');
 
   const drawerBackdrop = document.getElementById('drawerBackdrop');
   const drawerTitle    = document.getElementById('drawerTitle');
@@ -436,25 +403,31 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   const colorSet       = document.getElementById('colorSet');
   const fImage         = document.getElementById('fImage');
   const imageName      = document.getElementById('imageName');
+  const fVideo         = document.getElementById('fVideo');
+  const videoNameEl    = document.getElementById('videoName');
+  const clearVideoBtn  = document.getElementById('clearVideoBtn');
   const fAudio         = document.getElementById('fAudio');
-  const audioNameEl    = document.getElementById('audioName');
+  const trackListEdit  = document.getElementById('trackListEdit');
   const saveBtn        = document.getElementById('saveBtn');
   const cancelBtn      = document.getElementById('cancelBtn');
   const deleteBtn      = document.getElementById('deleteBtn');
 
   const settingsModal           = document.getElementById('settingsModal');
-  const settingTitle            = document.getElementById('settingTitle');
-  const settingOrg1             = document.getElementById('settingOrg1');
-  const settingOrg2             = document.getElementById('settingOrg2');
+  const settingTitleDE          = document.getElementById('settingTitleDE');
+  const settingHospitalName     = document.getElementById('settingHospitalName');
+  const settingTitleZH          = document.getElementById('settingTitleZH');
+  const settingLogo             = document.getElementById('settingLogo');
+  const settingLogoName         = document.getElementById('settingLogoName');
+  const clearLogoBtn            = document.getElementById('clearLogoBtn');
   const settingWelcomeMusic     = document.getElementById('settingWelcomeMusic');
-  const settingWelcomeMusicName = document.getElementById('settingWelcomeMusicName');
+  const welcomeMusicListEdit    = document.getElementById('welcomeMusicListEdit');
   const settingsSaveBtn         = document.getElementById('settingsSaveBtn');
   const settingsCancelBtn       = document.getElementById('settingsCancelBtn');
 
-  const confirmModal      = document.getElementById('confirmModal');
-  const confirmMsg        = document.getElementById('confirmMsg');
-  const confirmOkBtn      = document.getElementById('confirmOkBtn');
-  const confirmCancelBtn  = document.getElementById('confirmCancelBtn');
+  const confirmModal     = document.getElementById('confirmModal');
+  const confirmMsg       = document.getElementById('confirmMsg');
+  const confirmOkBtn     = document.getElementById('confirmOkBtn');
+  const confirmCancelBtn = document.getElementById('confirmCancelBtn');
   let confirmResolve = null;
 
   const toastContainer = document.getElementById('toastContainer');
@@ -466,13 +439,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     t.textContent = msg;
     toastContainer.appendChild(t);
     requestAnimationFrame(() => t.classList.add('show'));
-    setTimeout(() => {
-      t.classList.remove('show');
-      setTimeout(() => t.remove(), 350);
-    }, 3000);
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); }, 3000);
   }
 
-  // ---- Confirm dialog ----
+  // ---- Confirm ----
   function showConfirm(msg) {
     return new Promise(resolve => {
       confirmMsg.textContent = msg;
@@ -480,130 +450,281 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       confirmModal.classList.add('active');
     });
   }
-  confirmOkBtn.addEventListener('click', () => {
-    confirmModal.classList.remove('active');
-    confirmResolve && confirmResolve(true);
-  });
-  confirmCancelBtn.addEventListener('click', () => {
-    confirmModal.classList.remove('active');
-    confirmResolve && confirmResolve(false);
-  });
+  confirmOkBtn.addEventListener('click', () => { confirmModal.classList.remove('active'); confirmResolve && confirmResolve(true); });
+  confirmCancelBtn.addEventListener('click', () => { confirmModal.classList.remove('active'); confirmResolve && confirmResolve(false); });
 
-  // ---- Data persistence ----
-  async function persistData() {
-    await window.api.saveData({ programs });
+  // ---- Persist ----
+  async function persistData() { await window.api.saveData({ programs }); }
+
+  // ---- Push state to display window ----
+  function pushDisplay(mode) {
+    const idx = programs.findIndex(p => p.id === currentId);
+    const p = programs[idx];
+
+    // Active track's bg overrides program-level bg; fall back to program bg if track has none
+    let bgImagePath = p ? p.bgImagePath : null;
+    let bgVideoPath = p ? (p.bgVideoPath || null) : null;
+    const tracks = p ? getTracks(p) : [];
+    const activeTrack = tracks[currentTrackIndex] || null;
+    if (activeTrack && (activeTrack.bgImagePath || activeTrack.bgVideoPath)) {
+      bgImagePath = activeTrack.bgImagePath || null;
+      bgVideoPath = activeTrack.bgVideoPath || null;
+    }
+
+    window.api.setDisplayState({
+      mode,
+      settings: currentSettings,
+      program: p ? {
+        name: p.name, performer: p.performer,
+        bgColor: p.bgColor, bgImagePath, bgVideoPath,
+        index: idx + 1, total: programs.length,
+        trackTitle: activeTrack ? (activeTrack.title || '') : '',
+        trackIndex: tracks.length > 1 ? currentTrackIndex + 1 : 0,
+        trackTotal: tracks.length > 1 ? tracks.length : 0,
+      } : null
+    });
   }
 
   // ---- Settings ----
+  function getActiveWelcomeTracks() {
+    return (Array.isArray(currentSettings.welcomeMusicTracks) ? currentSettings.welcomeMusicTracks : [])
+      .filter(t => t.enabled !== false);
+  }
+
   function applySettings(s) {
     currentSettings = s;
-    arcTextEl.textContent = s.showTitle || '演出管理系统';
-    orgLine1El.textContent = s.organizerLine1 || '';
-    orgLine2El.textContent = s.organizerLine2 || '';
-    if (s.welcomeMusic) {
-      welcomeMusic.src = window.api.toUrl(s.welcomeMusic);
+    welcomeMusicIndex = 0;
+    const tracks = getActiveWelcomeTracks();
+    if (tracks.length) {
+      welcomeMusic.src = window.api.toUrl(tracks[0].path);
     } else {
-      welcomeMusic.src = '';
+      welcomeMusic.removeAttribute('src');
     }
   }
 
+  // Cycle through the welcome-music playlist: when one track ends, automatically move to
+  // the next ENABLED track, looping back to the first after the last (this "rotation" is
+  // expected once the operator has manually started playback).
+  welcomeMusic.addEventListener('ended', () => {
+    const tracks = getActiveWelcomeTracks();
+    if (!tracks.length) return;
+    welcomeMusicIndex = (welcomeMusicIndex + 1) % tracks.length;
+    welcomeMusic.src = window.api.toUrl(tracks[welcomeMusicIndex].path);
+    welcomeMusic.play().catch(() => {});
+  });
+
   settingsBtn.addEventListener('click', () => {
-    settingTitle.value = currentSettings.showTitle || '';
-    settingOrg1.value  = currentSettings.organizerLine1 || '';
-    settingOrg2.value  = currentSettings.organizerLine2 || '';
-    settingWelcomeMusicName.textContent = currentSettings.welcomeMusic ? '已设置' : '未设置';
-    pendingWelcomeMusicPath = null;
+    settingTitleDE.value = currentSettings.titleDE || '';
+    settingHospitalName.value = currentSettings.hospitalName || '';
+    settingTitleZH.value = currentSettings.titleZH || '';
+    settingLogoName.textContent = currentSettings.logoPath ? '已设置' : '未设置';
+    pendingWelcomeMusicTracks = (Array.isArray(currentSettings.welcomeMusicTracks) ? currentSettings.welcomeMusicTracks : [])
+      .map(t => ({ ...t, id: t.id || tid() }));
+    renderWelcomeMusicListEdit();
+    pendingLogoPath = null;
     settingsModal.classList.add('active');
   });
 
-  settingWelcomeMusic.addEventListener('change', async () => {
-    const file = settingWelcomeMusic.files[0];
+  settingLogo.addEventListener('change', async () => {
+    const file = settingLogo.files[0];
     if (!file) return;
-    settingWelcomeMusicName.textContent = '复制中…';
+    settingLogoName.textContent = '复制中…';
     const result = await window.api.copyMedia(file.path);
-    if (result.ok) {
-      pendingWelcomeMusicPath = result.path;
-      settingWelcomeMusicName.textContent = file.name;
-    } else {
-      settingWelcomeMusicName.textContent = '复制失败';
-      showToast('音乐文件复制失败', 'error');
+    if (result.ok) { pendingLogoPath = result.path; settingLogoName.textContent = file.name; }
+    else { settingLogoName.textContent = '复制失败'; }
+    settingLogo.value = '';
+  });
+
+  clearLogoBtn.addEventListener('click', () => {
+    pendingLogoPath = '__CLEAR__';
+    settingLogoName.textContent = '未设置';
+  });
+
+  // ---- Welcome-music playlist editor (inside settings modal) ----
+  function renderWelcomeMusicListEdit() {
+    welcomeMusicListEdit.innerHTML = '';
+    if (!pendingWelcomeMusicTracks.length) {
+      welcomeMusicListEdit.innerHTML = '<div class="track-empty-hint">还没有添加开幕背景音乐</div>';
+      return;
     }
+    pendingWelcomeMusicTracks.forEach((t, i) => {
+      const row = document.createElement('div');
+      const enabled = t.enabled !== false;
+      row.className = 'track-edit-item' + (enabled ? '' : ' disabled');
+      row.innerHTML = `
+        <input type="checkbox" data-act="toggle" title="本次是否播放这首" ${enabled ? 'checked' : ''}>
+        <span class="track-num">${i + 1}</span>
+        <span class="track-name">${escapeHtml(t.name || '未命名音乐')}</span>
+        <div class="track-actions">
+          <button class="mini-btn" data-act="up" title="上移">↑</button>
+          <button class="mini-btn" data-act="down" title="下移">↓</button>
+          <button class="mini-btn" data-act="del" title="删除">✕</button>
+        </div>`;
+      row.querySelector('[data-act="toggle"]').addEventListener('change', (e) => {
+        pendingWelcomeMusicTracks[i].enabled = e.target.checked;
+        row.classList.toggle('disabled', !e.target.checked);
+      });
+      row.querySelector('[data-act="up"]').addEventListener('click', () => {
+        if (i === 0) return;
+        [pendingWelcomeMusicTracks[i - 1], pendingWelcomeMusicTracks[i]] = [pendingWelcomeMusicTracks[i], pendingWelcomeMusicTracks[i - 1]];
+        renderWelcomeMusicListEdit();
+      });
+      row.querySelector('[data-act="down"]').addEventListener('click', () => {
+        if (i === pendingWelcomeMusicTracks.length - 1) return;
+        [pendingWelcomeMusicTracks[i + 1], pendingWelcomeMusicTracks[i]] = [pendingWelcomeMusicTracks[i], pendingWelcomeMusicTracks[i + 1]];
+        renderWelcomeMusicListEdit();
+      });
+      row.querySelector('[data-act="del"]').addEventListener('click', () => {
+        pendingWelcomeMusicTracks.splice(i, 1);
+        renderWelcomeMusicListEdit();
+      });
+      welcomeMusicListEdit.appendChild(row);
+    });
+  }
+
+  settingWelcomeMusic.addEventListener('change', async () => {
+    const files = Array.from(settingWelcomeMusic.files || []);
+    if (!files.length) return;
+    showToast(`正在添加 ${files.length} 首开幕音乐…`);
+    for (const file of files) {
+      const result = await window.api.copyMedia(file.path);
+      if (result.ok) { pendingWelcomeMusicTracks.push({ id: tid(), path: result.path, name: file.name, enabled: true }); }
+      else { showToast(`「${file.name}」复制失败`, 'error'); }
+    }
+    renderWelcomeMusicListEdit();
     settingWelcomeMusic.value = '';
   });
 
   settingsSaveBtn.addEventListener('click', async () => {
-    const newSettings = {
-      showTitle:       settingTitle.value.trim() || '演出管理系统',
-      organizerLine1:  settingOrg1.value.trim(),
-      organizerLine2:  settingOrg2.value.trim(),
-      welcomeMusic:    pendingWelcomeMusicPath || currentSettings.welcomeMusic || ''
+    const s = {
+      titleDE:       settingTitleDE.value.trim() || 'Benefizkonzert',
+      hospitalName:  settingHospitalName.value.trim(),
+      titleZH:       settingTitleZH.value.trim() || '慰问演出',
+      logoPath:      pendingLogoPath === '__CLEAR__' ? '' : (pendingLogoPath || currentSettings.logoPath || ''),
+      welcomeMusicTracks: pendingWelcomeMusicTracks.slice()
     };
-    await window.api.saveSettings(newSettings);
-    applySettings(newSettings);
+    await window.api.saveSettings(s);
+    applySettings(s);
+    // Sync settings to display
+    pushDisplay(showStarted ? 'stage' : 'welcome');
     settingsModal.classList.remove('active');
     showToast('设置已保存');
   });
   settingsCancelBtn.addEventListener('click', () => settingsModal.classList.remove('active'));
 
-  // ---- Welcome screen ----
-  let hintTimeout;
-  welcome.addEventListener('click', () => {
-    welcomeHint.style.opacity = '1';
-    clearTimeout(hintTimeout);
-    hintTimeout = setTimeout(() => { welcomeHint.style.opacity = '0'; }, 2500);
-  });
-
-  welcome.addEventListener('dblclick', enterConsole);
-
-  function enterConsole() {
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    }
+  // ---- Projection control buttons ----
+  // ---- Curtain / stage reveal helpers ----
+  function showCurtain() {
+    showStarted = false;
+    pushDisplay('welcome');
+    showWelcomeBtn.classList.add('active');
+    startShowBtn.classList.remove('active');
+  }
+  function revealStage() {
+    showStarted = true;
     welcomeMusic.pause();
-    curtainLeft.classList.add('open');
-    curtainRight.classList.add('open');
-    setTimeout(() => {
-      welcome.classList.add('hidden');
-      consoleEl.classList.add('active');
-      renderList();
-      loadCurrent();
-    }, 950);
+    pushDisplay('stage');
+    startShowBtn.classList.add('active');
+    showWelcomeBtn.classList.remove('active');
   }
 
-  // ---- Program list rendering ----
+  showWelcomeBtn.addEventListener('click', () => {
+    showCurtain();
+    showToast('投影已切换到欢迎幕布');
+  });
+
+  welcomeMusicBtn.addEventListener('click', () => {
+    if (!welcomeMusic.getAttribute('src')) { showToast('还没有设置开幕背景音乐，请到「⚙ 设置」里添加', 'warn'); return; }
+    welcomeMusic.paused ? welcomeMusic.play().catch(() => {}) : welcomeMusic.pause();
+  });
+  welcomeMusic.addEventListener('play',  () => { welcomeMusicBtn.classList.add('active'); welcomeMusicBtn.textContent = '❚❚ 开幕音乐'; });
+  welcomeMusic.addEventListener('pause', () => { welcomeMusicBtn.classList.remove('active'); welcomeMusicBtn.textContent = '🎵 开幕音乐'; });
+
+  startShowBtn.addEventListener('click', () => {
+    revealStage();
+    showToast('投影已切换到演出画面');
+  });
+
+  // ---- Render list ----
   function renderList() {
     programList.innerHTML = '';
     countHint.textContent = `共 ${programs.length} 个节目`;
     const curIdx = programs.findIndex(p => p.id === currentId);
-    progIndex.textContent = `节目 ${programs.length ? String(curIdx + 1).padStart(2, '0') : '00'} / ${String(programs.length).padStart(2, '0')}`;
+    progIndex.textContent = programs.length
+      ? `节目 ${String(curIdx + 1).padStart(2, '0')} / ${String(programs.length).padStart(2, '0')}`
+      : '节目 00 / 00';
 
     programs.forEach((p, idx) => {
       const row = document.createElement('div');
       row.className = 'program-item' + (p.id === currentId ? ' current' : '');
+      row.draggable = true;
+      row.dataset.idx = idx;
+      const tracks = getTracks(p);
+      const musicTag = tracks.length
+        ? `<span class="tag on">音乐✓${tracks.length > 1 ? '×' + tracks.length : ''}</span>`
+        : `<span class="tag">音乐</span>`;
       row.innerHTML = `
+        <div class="drag-handle" title="拖动排序">⠿</div>
         <div class="program-num">${String(idx + 1).padStart(2, '0')}</div>
         <div class="program-info">
           <div class="pname">${escapeHtml(p.name || '未命名节目')}</div>
           <div class="pperformer">${escapeHtml(p.performer || '—')}</div>
           <div class="program-meta">
-            <span class="tag ${p.bgImagePath ? 'on' : ''}">背景${p.bgImagePath ? '✓' : ''}</span>
-            <span class="tag ${p.audioPath ? 'on' : ''}">音乐${p.audioPath ? '✓' : ''}</span>
+            ${p.bgVideoPath ? '<span class="tag on">视频✓</span>' : `<span class="tag ${p.bgImagePath ? 'on' : ''}">背景${p.bgImagePath ? '✓' : ''}</span>`}
+            ${musicTag}
           </div>
         </div>
         <div class="item-actions">
-          <button class="mini-btn" data-act="up" title="上移">↑</button>
-          <button class="mini-btn" data-act="down" title="下移">↓</button>
-          <button class="mini-btn" data-act="edit" title="编辑">✎</button>
-        </div>
-      `;
+          <button class="mini-btn" data-act="up">↑</button>
+          <button class="mini-btn" data-act="down">↓</button>
+          <button class="mini-btn" data-act="edit">✎</button>
+        </div>`;
       row.addEventListener('click', (e) => {
         if (e.target.closest('.item-actions')) return;
         currentId = p.id;
         loadCurrent();
+        revealStage();
       });
-      row.querySelector('[data-act="up"]').addEventListener('click', (e)   => { e.stopPropagation(); move(idx, -1); });
+      row.querySelector('[data-act="up"]').addEventListener('click',   (e) => { e.stopPropagation(); move(idx, -1); });
       row.querySelector('[data-act="down"]').addEventListener('click', (e) => { e.stopPropagation(); move(idx, 1); });
       row.querySelector('[data-act="edit"]').addEventListener('click', (e) => { e.stopPropagation(); openEditor(p.id); });
+
+      // Drag-and-drop reordering (arbitrary position, not just adjacent)
+      row.addEventListener('dragstart', (e) => {
+        dragSrcIndex = idx;
+        row.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(idx));
+      });
+      row.addEventListener('dragend', () => {
+        row.classList.remove('dragging');
+        programList.querySelectorAll('.program-item').forEach(el => el.classList.remove('drag-over-top', 'drag-over-bottom'));
+      });
+      row.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (dragSrcIndex === null || dragSrcIndex === idx) return;
+        const rect = row.getBoundingClientRect();
+        const before = (e.clientY - rect.top) < rect.height / 2;
+        row.classList.toggle('drag-over-top', before);
+        row.classList.toggle('drag-over-bottom', !before);
+      });
+      row.addEventListener('dragleave', () => {
+        row.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+      row.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        row.classList.remove('drag-over-top', 'drag-over-bottom');
+        if (dragSrcIndex === null || dragSrcIndex === idx) return;
+        const rect = row.getBoundingClientRect();
+        const before = (e.clientY - rect.top) < rect.height / 2;
+        let targetIdx = before ? idx : idx + 1;
+        const [moved] = programs.splice(dragSrcIndex, 1);
+        if (dragSrcIndex < targetIdx) targetIdx -= 1;
+        programs.splice(targetIdx, 0, moved);
+        dragSrcIndex = null;
+        await persistData(); renderList();
+      });
+
       programList.appendChild(row);
     });
   }
@@ -612,65 +733,98 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     const j = idx + dir;
     if (j < 0 || j >= programs.length) return;
     [programs[idx], programs[j]] = [programs[j], programs[idx]];
-    await persistData();
-    renderList();
+    await persistData(); renderList();
   }
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c =>
-      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
-    );
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  // ---- Stage display ----
+  // ---- Load current program ----
   function loadCurrent() {
-    audioEl.pause();
-    // Reset time display on every track change
-    seek.value = 0;
-    seek.max = 100;
-    curTime.textContent = '00:00';
-    durTime.textContent = '00:00';
-    playBtn.textContent = '▶';
-
+    currentTrackIndex = 0;
     const p = programs.find(x => x.id === currentId);
+    const idx = programs.findIndex(x => x.id === currentId);
+
     if (!p) {
-      emptyStage.classList.remove('hidden');
-      stageInfo.classList.add('hidden');
-      stage.style.backgroundImage = '';
-      stage.style.backgroundColor = 'var(--bg-2)';
-      audioEl.removeAttribute('src');
-      audioHint.textContent = '未设置音乐';
-      renderList();
-      return;
+      currentOrder.textContent = '';
+      currentName.innerHTML = '<span class="empty-hint">暂无节目 · 请在左侧新增</span>';
+      currentPerformer.textContent = '';
+      bgBlur.style.backgroundImage = '';
+      currentPanel.style.backgroundColor = '';
+      nextName.textContent = '—';
+      loadTrack();
+      renderList(); return;
     }
 
-    emptyStage.classList.add('hidden');
-    stageInfo.classList.remove('hidden');
-    const idx = programs.findIndex(x => x.id === p.id);
-    stageOrder.textContent = `第 ${String(idx + 1).padStart(2, '0')} 场`;
-    stageName.textContent = p.name || '未命名节目';
-    stagePerformer.textContent = p.performer || '';
+    currentOrder.textContent = `第 ${String(idx + 1).padStart(2, '0')} 场`;
+    currentName.textContent  = p.name      || '未命名节目';
+    currentPerformer.textContent = p.performer || '';
 
+    // Background preview (blurred overlay)
     if (p.bgImagePath) {
-      const safeUrl = window.api.toUrl(p.bgImagePath);
-      stage.style.backgroundImage = `url("${safeUrl}")`;
-      stage.style.backgroundColor = 'transparent';
+      bgBlur.style.backgroundImage = `url("${window.api.toUrl(p.bgImagePath)}")`;
+      currentPanel.style.backgroundColor = '';
     } else {
-      stage.style.backgroundImage = '';
-      stage.style.backgroundColor = p.bgColor || PALETTE[0];
+      bgBlur.style.backgroundImage = '';
+      currentPanel.style.backgroundColor = p.bgColor || PALETTE[0];
     }
 
-    if (p.audioPath) {
-      audioEl.src = window.api.toUrl(p.audioPath);
-      audioHint.textContent = p.audioName || '已加载音乐';
-    } else {
-      audioEl.removeAttribute('src');
-      audioHint.textContent = '未设置音乐';
-    }
+    // Next program
+    const next = programs[idx + 1];
+    nextName.textContent = next ? next.name || '未命名' : '已是最后一个节目';
+
+    loadTrack();
+
+    // Sync to display if show has started
+    if (showStarted) pushDisplay('stage');
+
     renderList();
   }
 
-  // ---- Audio player ----
+  // ---- Load a specific track of the current program into the audio element ----
+  function loadTrack() {
+    audioEl.pause();
+    seek.value = 0; seek.max = 100;
+    curTime.textContent = '00:00'; durTime.textContent = '00:00';
+    playBtn.textContent = '▶';
+
+    const p = programs.find(x => x.id === currentId);
+    const tracks = getTracks(p);
+    const track = tracks[currentTrackIndex];
+
+    if (track) {
+      audioEl.src = window.api.toUrl(track.path);
+      audioHint.textContent = track.name || '已加载音乐';
+    } else {
+      audioEl.removeAttribute('src');
+      audioHint.textContent = '未设置音乐';
+    }
+
+    if (tracks.length > 1) {
+      trackRow.classList.remove('hidden');
+      const hasBg = track && (track.bgImagePath || track.bgVideoPath);
+      trackInfo.textContent = `第 ${currentTrackIndex + 1}/${tracks.length} 首：${track ? (track.name || '') : ''}${hasBg ? ' 🖼' : ''}`;
+      trackPrevBtn.disabled = currentTrackIndex === 0;
+      trackNextBtn.disabled = currentTrackIndex === tracks.length - 1;
+    } else {
+      trackRow.classList.add('hidden');
+    }
+
+    // Sync background to display window whenever track changes
+    if (showStarted) pushDisplay('stage');
+  }
+
+  trackPrevBtn.addEventListener('click', () => {
+    if (currentTrackIndex > 0) { currentTrackIndex--; loadTrack(); }
+  });
+  trackNextBtn.addEventListener('click', () => {
+    const tracks = getTracks(programs.find(x => x.id === currentId));
+    if (currentTrackIndex < tracks.length - 1) { currentTrackIndex++; loadTrack(); }
+  });
+
+  // ---- Player ----
   playBtn.addEventListener('click', () => {
     if (!audioEl.getAttribute('src')) return;
     audioEl.paused ? audioEl.play().catch(() => {}) : audioEl.pause();
@@ -681,24 +835,28 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     seek.max = audioEl.duration || 0;
     durTime.textContent = fmtTime(audioEl.duration);
   });
-
   let isSeeking = false;
   audioEl.addEventListener('timeupdate', () => {
     if (!isSeeking) seek.value = audioEl.currentTime;
     curTime.textContent = fmtTime(audioEl.currentTime);
   });
   audioEl.addEventListener('ended', () => {
-    const idx = programs.findIndex(p => p.id === currentId);
-    if (idx >= 0 && idx < programs.length - 1) {
-      currentId = programs[idx + 1].id;
-      loadCurrent();
-      // Auto-play the next track
-      setTimeout(() => {
-        if (audioEl.getAttribute('src')) audioEl.play().catch(() => {});
-      }, 150);
+    const p = programs.find(x => x.id === currentId);
+    const tracks = getTracks(p);
+    if (currentTrackIndex < tracks.length - 1) {
+      // More tracks left in this program (same act, multiple songs): load the next song,
+      // curtain stays open, wait for manual play
+      currentTrackIndex++;
+      loadTrack();
+      return;
     }
+    // Last track of this program finished: automatically close the curtain (welcome screen)
+    // and wait for the host's next announcement. Program list selection is left untouched —
+    // the operator manually clicks the next program when ready (see row click handler).
+    showCurtain();
+    showToast('节目结束，投影已自动回到幕布');
   });
-  seek.addEventListener('input',  () => { isSeeking = true;  curTime.textContent = fmtTime(+seek.value); });
+  seek.addEventListener('input',  () => { isSeeking = true; curTime.textContent = fmtTime(+seek.value); });
   seek.addEventListener('change', () => { audioEl.currentTime = +seek.value; isSeeking = false; });
   volume.addEventListener('input', () => { audioEl.volume = +volume.value; });
   audioEl.volume = +volume.value;
@@ -723,108 +881,56 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     const inModal = drawerBackdrop.classList.contains('active')
       || settingsModal.classList.contains('active')
       || confirmModal.classList.contains('active');
-
-    // Allow Escape through even in modals
     if (inModal && e.key !== 'Escape') return;
-
-    // Don't intercept when typing in a text field
     if (!inModal && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
-
     switch (e.key) {
-      case ' ':
-        e.preventDefault();
-        if (audioEl.getAttribute('src')) {
-          audioEl.paused ? audioEl.play().catch(() => {}) : audioEl.pause();
-        }
+      case ' ': e.preventDefault();
+        if (audioEl.getAttribute('src')) audioEl.paused ? audioEl.play().catch(() => {}) : audioEl.pause();
         break;
-      case 'ArrowRight':
-      case 'ArrowDown':
-        e.preventDefault();
-        stepProgram(1);
-        break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        e.preventDefault();
-        stepProgram(-1);
-        break;
+      case 'ArrowRight': case 'ArrowDown': e.preventDefault(); stepProgram(1);  break;
+      case 'ArrowLeft':  case 'ArrowUp':   e.preventDefault(); stepProgram(-1); break;
       case 'Escape':
         if (drawerBackdrop.classList.contains('active'))  { drawerBackdrop.classList.remove('active'); break; }
         if (settingsModal.classList.contains('active'))   { settingsModal.classList.remove('active');  break; }
         if (confirmModal.classList.contains('active'))    { confirmModal.classList.remove('active'); confirmResolve && confirmResolve(false); break; }
-        if (consoleEl.classList.contains('present'))      { leavePresent(); break; }
         break;
     }
   });
 
-  // ---- Fullscreen sync ----
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement && consoleEl.classList.contains('present')) {
-      consoleEl.classList.remove('present');
-    }
-  });
-
-  // ---- Presentation mode ----
-  presentBtn.addEventListener('click', () => {
-    consoleEl.classList.add('present');
-    if (consoleEl.requestFullscreen) consoleEl.requestFullscreen().catch(() => {});
-  });
-  function leavePresent() {
-    consoleEl.classList.remove('present');
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-  }
-  exitPresent.addEventListener('click', leavePresent);
-
   // ---- Folder scan ----
   rescanBtn.addEventListener('click', async () => {
-    if (programs.length > 0) {
-      const ok = await showConfirm('这将替换当前所有节目，确定继续？');
-      if (!ok) return;
-    }
+    if (programs.length > 0) { const ok = await showConfirm('这将替换当前所有节目，确定继续？'); if (!ok) return; }
     const folderPath = await window.api.openFolder();
     if (!folderPath) return;
-    showToast('正在扫描并复制媒体文件…', 'info');
+    showToast('正在扫描并复制媒体文件…');
     const result = await window.api.scanFolder(folderPath);
     if (!result.ok) { showToast('扫描失败：' + result.error, 'error'); return; }
-    if (!result.programs.length) { showToast('未在该文件夹中找到节目子文件夹', 'warn'); return; }
-    programs = result.programs;
-    currentId = programs[0].id;
-    await persistData();
-    loadCurrent();
+    if (!result.programs.length) { showToast('未找到节目子文件夹', 'warn'); return; }
+    programs = result.programs; currentId = programs[0].id;
+    await persistData(); loadCurrent();
     showToast(`已从文件夹加载 ${programs.length} 个节目`);
   });
 
   // ---- Export / Import ----
   exportBtn.addEventListener('click', async () => {
-    const ok = await window.api.exportData({
-      programs,
-      exportedAt: new Date().toISOString(),
-      note: '媒体文件路径为本机绝对路径，仅供本机恢复使用'
-    });
+    const ok = await window.api.exportData({ programs, exportedAt: new Date().toISOString() });
     if (ok) showToast('节目单已导出');
   });
-
   importBtn.addEventListener('click', async () => {
-    if (programs.length > 0) {
-      const ok = await showConfirm('导入将替换当前所有节目，确定继续？');
-      if (!ok) return;
-    }
+    if (programs.length > 0) { const ok = await showConfirm('导入将替换当前所有节目，确定继续？'); if (!ok) return; }
     const data = await window.api.importData();
     if (!data) return;
-    if (data.error) { showToast('导入失败：文件格式不正确', 'error'); return; }
+    if (data.error) { showToast('导入失败：格式不正确', 'error'); return; }
     const list = Array.isArray(data) ? data : (data.programs || []);
-    if (!Array.isArray(list)) { showToast('导入失败：文件格式不正确', 'error'); return; }
+    if (!Array.isArray(list)) { showToast('导入失败：格式不正确', 'error'); return; }
     programs = list.map(p => ({
-      id: cid(),
-      name:         p.name || '',
-      performer:    p.performer || '',
-      bgColor:      p.bgColor || PALETTE[0],
-      bgImagePath:  p.bgImagePath || null,
-      audioPath:    p.audioPath || null,
-      audioName:    p.audioName || ''
+      id: cid(), name: p.name||'', performer: p.performer||'', bgColor: p.bgColor||PALETTE[0],
+      bgImagePath: p.bgImagePath||null, bgVideoPath: p.bgVideoPath||null, bgVideoName: p.bgVideoName||'',
+      audioTracks: Array.isArray(p.audioTracks) ? p.audioTracks.map(t => ({ id: tid(), path: t.path, name: t.name||'' }))
+        : (p.audioPath ? [{ id: tid(), path: p.audioPath, name: p.audioName||'' }] : [])
     }));
     currentId = programs.length ? programs[0].id : null;
-    await persistData();
-    loadCurrent();
+    await persistData(); loadCurrent();
     showToast(`已导入 ${programs.length} 个节目`);
   });
 
@@ -835,7 +941,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       const sw = document.createElement('button');
       sw.className = 'swatch' + (c === pendingColor ? ' sel' : '');
       sw.style.background = c;
-      sw.setAttribute('aria-label', `颜色 ${c}`);
       sw.addEventListener('click', () => { pendingColor = c; buildColorSwatches(); });
       colorSet.appendChild(sw);
     });
@@ -847,115 +952,192 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     drawerTitle.textContent = isNew ? '新增节目' : '编辑节目';
     deleteBtn.style.display = isNew ? 'none' : 'inline-block';
     const p = isNew ? null : programs.find(x => x.id === id);
-    fName.value      = p ? p.name      : '';
-    fPerformer.value = p ? p.performer : '';
-    pendingColor      = p ? (p.bgColor || PALETTE[0]) : PALETTE[programs.length % PALETTE.length];
-    pendingImagePath  = p ? p.bgImagePath : null;
-    pendingImageName  = p && p.bgImagePath ? '已设置图片' : '';
-    pendingAudioPath  = p ? p.audioPath   : null;
-    pendingAudioName  = p ? (p.audioName || '') : '';
-    imageName.textContent    = pendingImageName || '未选择';
-    audioNameEl.textContent  = pendingAudioName || '未选择';
-    fImage.value = '';
-    fAudio.value = '';
+    fName.value = p ? p.name : ''; fPerformer.value = p ? p.performer : '';
+    pendingColor = p ? (p.bgColor || PALETTE[0]) : PALETTE[programs.length % PALETTE.length];
+    pendingImagePath = p ? p.bgImagePath : null; pendingImageName = p && p.bgImagePath ? '已设置图片' : '';
+    pendingVideoPath = p ? (p.bgVideoPath || null) : null; pendingVideoName = p ? (p.bgVideoName || '') : '';
+    pendingAudioTracks = getTracks(p).map(t => ({
+      ...t, id: t.id || tid(),
+      title: t.title !== undefined ? t.title : t.name.replace(/\.[^.]+$/, '')
+    }));
+    imageName.textContent = pendingImageName || '未选择';
+    videoNameEl.textContent = pendingVideoPath ? (pendingVideoName || '已设置视频') : '未选择';
+    renderTrackListEdit();
+    fImage.value = ''; fVideo.value = ''; fAudio.value = '';
     buildColorSwatches();
     drawerBackdrop.classList.add('active');
   }
 
+  // ---- Track list editor (inside drawer) ----
+  function renderTrackListEdit() {
+    trackListEdit.innerHTML = '';
+    if (!pendingAudioTracks.length) {
+      trackListEdit.innerHTML = '<div class="track-empty-hint">还没有添加音乐</div>';
+      return;
+    }
+    pendingAudioTracks.forEach((t, i) => {
+      const hasBg = !!(t.bgVideoPath || t.bgImagePath);
+      const bgLabel = t.bgVideoPath ? `视频: ${t.bgVideoName || '已设置'}`
+                    : t.bgImagePath ? '图片: 已设置'
+                    : '无专属背景（沿用节目背景）';
+
+      const row = document.createElement('div');
+      row.className = 'track-edit-item';
+      row.style.cssText = 'flex-direction:column;align-items:stretch;';
+      row.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="track-num">${i + 1}</span>
+          <input type="text" class="t-title" value="${escapeHtml(t.title || '')}" placeholder="投影显示的歌名"
+            style="flex:1;background:var(--bg);border:1px solid var(--line);color:var(--cream);padding:5px 8px;border-radius:3px;font-size:13px;">
+          <div class="track-actions">
+            <button class="mini-btn" data-act="up" title="上移">↑</button>
+            <button class="mini-btn" data-act="down" title="下移">↓</button>
+            <button class="mini-btn" data-act="del" title="删除">✕</button>
+          </div>
+        </div>
+        <div style="padding-left:20px;font-size:10px;color:var(--muted);margin-top:1px;">文件：${escapeHtml(t.name || '')}</div>
+        <div class="track-bg-row">
+          <span class="track-bg-info ${hasBg ? 'set' : ''}">${escapeHtml(bgLabel)}</span>
+          <label class="filebtn" style="padding:3px 8px;font-size:11px;cursor:pointer;">图片<input type="file" class="t-img" accept="image/*" style="display:none"></label>
+          <label class="filebtn" style="padding:3px 8px;font-size:11px;cursor:pointer;">视频<input type="file" class="t-vid" accept="video/*" style="display:none"></label>
+          ${hasBg ? '<button class="mini-btn" data-act="clr-bg" title="清除此曲专属背景" style="opacity:1">✕</button>' : ''}
+        </div>`;
+
+      row.querySelector('.t-title').addEventListener('input', (e) => {
+        pendingAudioTracks[i].title = e.target.value;
+      });
+      row.querySelector('[data-act="up"]').addEventListener('click', () => {
+        if (i === 0) return;
+        [pendingAudioTracks[i - 1], pendingAudioTracks[i]] = [pendingAudioTracks[i], pendingAudioTracks[i - 1]];
+        renderTrackListEdit();
+      });
+      row.querySelector('[data-act="down"]').addEventListener('click', () => {
+        if (i === pendingAudioTracks.length - 1) return;
+        [pendingAudioTracks[i + 1], pendingAudioTracks[i]] = [pendingAudioTracks[i], pendingAudioTracks[i + 1]];
+        renderTrackListEdit();
+      });
+      row.querySelector('[data-act="del"]').addEventListener('click', () => {
+        pendingAudioTracks.splice(i, 1);
+        renderTrackListEdit();
+      });
+      if (hasBg) {
+        row.querySelector('[data-act="clr-bg"]').addEventListener('click', () => {
+          pendingAudioTracks[i].bgImagePath = null;
+          pendingAudioTracks[i].bgVideoPath = null;
+          pendingAudioTracks[i].bgVideoName = '';
+          renderTrackListEdit();
+        });
+      }
+      row.querySelector('.t-img').addEventListener('change', async (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        const r = await window.api.copyMedia(file.path);
+        if (r.ok) {
+          pendingAudioTracks[i].bgImagePath = r.path;
+          pendingAudioTracks[i].bgVideoPath = null;
+          pendingAudioTracks[i].bgVideoName = '';
+          renderTrackListEdit(); showToast('背景图片已设置');
+        } else { showToast('图片复制失败', 'error'); }
+        e.target.value = '';
+      });
+      row.querySelector('.t-vid').addEventListener('change', async (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        const r = await window.api.copyMedia(file.path);
+        if (r.ok) {
+          pendingAudioTracks[i].bgVideoPath = r.path;
+          pendingAudioTracks[i].bgVideoName = file.name;
+          pendingAudioTracks[i].bgImagePath = null;
+          renderTrackListEdit(); showToast('背景视频已设置');
+        } else { showToast('视频复制失败', 'error'); }
+        e.target.value = '';
+      });
+
+      trackListEdit.appendChild(row);
+    });
+  }
+
   addBtn.addEventListener('click', () => openEditor(null));
   cancelBtn.addEventListener('click', () => drawerBackdrop.classList.remove('active'));
-  drawerBackdrop.addEventListener('click', (e) => {
-    if (e.target === drawerBackdrop) drawerBackdrop.classList.remove('active');
-  });
+  drawerBackdrop.addEventListener('click', (e) => { if (e.target === drawerBackdrop) drawerBackdrop.classList.remove('active'); });
 
   fImage.addEventListener('change', async () => {
-    const file = fImage.files[0];
-    if (!file) return;
+    const file = fImage.files[0]; if (!file) return;
     imageName.textContent = '复制中…';
-    const result = await window.api.copyMedia(file.path);
-    if (result.ok) {
-      pendingImagePath = result.path;
-      pendingImageName = file.name;
-      imageName.textContent = file.name;
-    } else {
-      imageName.textContent = '复制失败';
-      showToast('图片文件复制失败', 'error');
-    }
+    const r = await window.api.copyMedia(file.path);
+    if (r.ok) { pendingImagePath = r.path; pendingImageName = file.name; imageName.textContent = file.name; }
+    else { imageName.textContent = '复制失败'; showToast('图片复制失败', 'error'); }
     fImage.value = '';
   });
 
+  fVideo.addEventListener('change', async () => {
+    const file = fVideo.files[0]; if (!file) return;
+    videoNameEl.textContent = '复制中…';
+    const r = await window.api.copyMedia(file.path);
+    if (r.ok) { pendingVideoPath = r.path; pendingVideoName = file.name; videoNameEl.textContent = file.name; }
+    else { videoNameEl.textContent = '复制失败'; showToast('视频复制失败', 'error'); }
+    fVideo.value = '';
+  });
+
+  clearVideoBtn.addEventListener('click', () => {
+    pendingVideoPath = null; pendingVideoName = '';
+    videoNameEl.textContent = '未选择';
+  });
+
+  // Add one or many audio tracks at once (multi-select supported); appends, never replaces
   fAudio.addEventListener('change', async () => {
-    const file = fAudio.files[0];
-    if (!file) return;
-    audioNameEl.textContent = '复制中…';
-    const result = await window.api.copyMedia(file.path);
-    if (result.ok) {
-      pendingAudioPath = result.path;
-      pendingAudioName = file.name;
-      audioNameEl.textContent = file.name;
-    } else {
-      audioNameEl.textContent = '复制失败';
-      showToast('音频文件复制失败', 'error');
+    const files = Array.from(fAudio.files || []);
+    if (!files.length) return;
+    showToast(`正在添加 ${files.length} 首音乐…`);
+    for (const file of files) {
+      const r = await window.api.copyMedia(file.path);
+      if (r.ok) { pendingAudioTracks.push({ id: tid(), path: r.path, name: file.name, title: file.name.replace(/\.[^.]+$/, '') }); }
+      else { showToast(`「${file.name}」复制失败`, 'error'); }
     }
+    renderTrackListEdit();
     fAudio.value = '';
   });
 
   saveBtn.addEventListener('click', async () => {
     if (editingId) {
       const p = programs.find(x => x.id === editingId);
-      p.name        = fName.value.trim();
-      p.performer   = fPerformer.value.trim();
-      p.bgColor     = pendingColor;
-      p.bgImagePath = pendingImagePath;
-      p.audioPath   = pendingAudioPath;
-      p.audioName   = pendingAudioName;
+      p.name = fName.value.trim(); p.performer = fPerformer.value.trim();
+      p.bgColor = pendingColor; p.bgImagePath = pendingImagePath;
+      p.bgVideoPath = pendingVideoPath; p.bgVideoName = pendingVideoName;
+      p.audioTracks = pendingAudioTracks.slice();
+      delete p.audioPath; delete p.audioName;
     } else {
-      const p = {
-        id:          cid(),
-        name:        fName.value.trim(),
-        performer:   fPerformer.value.trim(),
-        bgColor:     pendingColor,
-        bgImagePath: pendingImagePath,
-        audioPath:   pendingAudioPath,
-        audioName:   pendingAudioName
-      };
-      programs.push(p);
-      currentId = p.id;
+      const p = { id: cid(), name: fName.value.trim(), performer: fPerformer.value.trim(),
+        bgColor: pendingColor, bgImagePath: pendingImagePath,
+        bgVideoPath: pendingVideoPath, bgVideoName: pendingVideoName,
+        audioTracks: pendingAudioTracks.slice() };
+      programs.push(p); currentId = p.id;
     }
     drawerBackdrop.classList.remove('active');
-    await persistData();
-    loadCurrent();
+    await persistData(); loadCurrent();
   });
 
   deleteBtn.addEventListener('click', async () => {
     if (!editingId) return;
-    const ok = await showConfirm('确定删除这个节目？');
-    if (!ok) return;
+    const ok = await showConfirm('确定删除这个节目？'); if (!ok) return;
     const idx = programs.findIndex(x => x.id === editingId);
     programs.splice(idx, 1);
-    if (currentId === editingId) {
-      currentId = programs.length ? programs[Math.min(idx, programs.length - 1)].id : null;
-    }
+    if (currentId === editingId) currentId = programs.length ? programs[Math.min(idx, programs.length - 1)].id : null;
     drawerBackdrop.classList.remove('active');
-    await persistData();
-    loadCurrent();
+    await persistData(); loadCurrent();
   });
 
   // ---- Init ----
-  const [data, settings] = await Promise.all([
-    window.api.getData(),
-    window.api.getSettings()
-  ]);
-  programs = data.programs || [];
+  const [data, settings] = await Promise.all([window.api.getData(), window.api.getSettings()]);
+  programs = (data.programs || []).map(p => {
+    if (!Array.isArray(p.audioTracks)) {
+      p.audioTracks = p.audioPath ? [{ id: tid(), path: p.audioPath, name: p.audioName || '' }] : [];
+    }
+    return p;
+  });
   currentId = programs.length ? programs[0].id : null;
   applySettings(settings);
-
-  // Try to play welcome music
-  if (settings.welcomeMusic) {
-    window.addEventListener('load', () => {
-      welcomeMusic.play().catch(() => {});
-    });
-  }
+  // Send initial welcome state to display
+  pushDisplay('welcome');
+  loadCurrent();
 
 })();
 </script>

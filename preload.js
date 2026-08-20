@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+// ---- Control window API ----
 contextBridge.exposeInMainWorld('api', {
   // Data
   getData:      ()       => ipcRenderer.invoke('data:get'),
@@ -19,9 +20,22 @@ contextBridge.exposeInMainWorld('api', {
   openFolder:   ()       => ipcRenderer.invoke('dialog:folder'),
   openFile:     (opts)   => ipcRenderer.invoke('dialog:file', opts),
 
-  // Convert an absolute Windows path to a file:// URL the renderer can use
+  // Send display state to projection window
+  setDisplayState: (state) => ipcRenderer.invoke('display:setState', state),
+
+  // Convert absolute Windows path to file:// URL
   toUrl: (absPath) => {
     if (!absPath) return null;
     return 'file:///' + absPath.replace(/\\/g, '/');
   }
+});
+
+// ---- Display window API ----
+contextBridge.exposeInMainWorld('displayAPI', {
+  // Listen for state pushed from control window via main process
+  onState: (callback) => {
+    ipcRenderer.on('display:state', (_event, state) => callback(state));
+  },
+  // Get initial state (settings + current program)
+  getInitialState: () => ipcRenderer.invoke('display:getInitialState'),
 });

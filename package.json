@@ -4,13 +4,33 @@
   "description": "幕启 · 演出管理系统",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
   },
   "dependencies": {
-    "@fontsource/fraunces": "*",
-    "@fontsource/ma-shan-zheng": "*"
+    "@fontsource/fraunces": "5.3.0",
+    "@fontsource/ma-shan-zheng": "5.3.0"
   },
   "devDependencies": {
-    "electron": "^31.0.0"
+    "electron": "31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.muqi.showcontrol",
+    "productName": "幕启演出管理系统",
+    "asar": true,
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "display.html",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": ["portable"]
+    },
+    "portable": {
+      "artifactName": "幕启演出管理系统.exe"
+    }
   }
 }
