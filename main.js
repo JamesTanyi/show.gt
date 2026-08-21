@@ -34,7 +34,7 @@ function saveData(data) {
 const DEFAULT_SETTINGS = {
   titleDE: 'Herbstkühle · Benefizkonzert',
   hospitalName: 'Geriatrische Klinik Baumgarten',
-  titleZH: '仲秋清凉Geriatrische Klinik Baumgarten医院慰问演出',
+  titleZH: '仲秋Geriatrische Klinik Baumgarten医院慰问演出',
   logoPath: '',
   welcomeMusicTracks: []
 };
@@ -118,7 +118,12 @@ function scanShowFolder(folderPath) {
     for (const a of audios) {
       try {
         const p = copyMediaFile(path.join(subPath, a.name));
-        audioTracks.push({ id: 'p_' + Math.random().toString(36).slice(2, 9), path: p, name: a.name });
+        audioTracks.push({
+          id: 'p_' + Math.random().toString(36).slice(2, 9),
+          path: p,
+          name: a.name,
+          title: a.name.replace(/\.[^.]+$/, ''),
+        });
       } catch (_) {}
     }
 

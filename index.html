@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<title>幕启 · 控制台</title>
+<title>控制台</title>
 <style>
 @import url('app://app/node_modules/@fontsource/ma-shan-zheng/index.css');
 @import url('app://app/node_modules/@fontsource/fraunces/400.css');
@@ -34,14 +34,19 @@ input,textarea{font-family:inherit;}
 #app{display:flex;flex-direction:column;height:100vh;}
 
 /* ---- Topbar ---- */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--bg-2);flex:0 0 auto;}
-.brand{display:flex;align-items:baseline;gap:12px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--bg-2);flex:0 0 auto;gap:16px;}
+.brand{display:flex;align-items:baseline;gap:12px;flex:0 0 auto;white-space:nowrap;}
 .brand h1{font-family:var(--font-display);font-size:20px;font-weight:600;margin:0;}
 .brand span{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.12em;}
-.topbar-actions{display:flex;gap:8px;}
-.icon-btn{background:var(--surface);border:1px solid var(--line);color:var(--cream);padding:8px 14px;border-radius:3px;font-size:13px;display:flex;align-items:center;gap:7px;letter-spacing:.03em;transition:.2s;}
+.topbar-actions{display:flex;gap:8px;flex:0 0 auto;flex-wrap:nowrap;}
+.icon-btn{background:var(--surface);border:1px solid var(--line);color:var(--cream);padding:8px 14px;border-radius:3px;font-size:13px;display:flex;align-items:center;gap:7px;letter-spacing:.03em;transition:.2s;white-space:nowrap;flex:0 0 auto;}
 .icon-btn:hover{border-color:var(--gold);color:var(--gold-light);}
 .icon-btn.active{border-color:var(--gold);color:var(--gold-light);background:var(--surface-2);}
+.music-vol-group{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:3px;}
+.music-vol-group .icon-btn{border:none;border-radius:3px 0 0 3px;background:transparent;}
+.music-vol-group .icon-btn:hover{background:var(--surface-2);}
+.music-vol-group .icon-btn.active{background:var(--surface-2);}
+#welcomeVolume{width:70px;margin:0 8px;cursor:pointer;}
 
 /* ---- Main grid: sidebar + right panel ---- */
 .main-grid{flex:1 1 auto;display:grid;grid-template-columns:340px 1fr;min-height:0;}
@@ -182,7 +187,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   <!-- ======= TOPBAR ======= -->
   <div class="topbar">
     <div class="brand">
-      <h1>幕启 · 控制台</h1>
+      <h1>控制台</h1>
       <span id="progIndex">节目 00 / 00</span>
     </div>
     <div class="topbar-actions">
@@ -190,9 +195,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <button class="icon-btn" id="exportBtn">⬇ 导出</button>
       <button class="icon-btn" id="importBtn">⬆ 导入</button>
       <button class="icon-btn" id="settingsBtn">⚙ 设置</button>
-      <button class="icon-btn" id="showWelcomeBtn" title="让投影窗口显示欢迎幕布">🎭 幕布</button>
-      <button class="icon-btn" id="welcomeMusicBtn" title="手动播放/暂停开幕背景音乐">🎵 幕间音乐</button>
-      <button class="icon-btn" id="startShowBtn" title="让投影窗口显示当前节目">▣ 演出</button>
+      <button class="icon-btn" id="showWelcomeBtn" title="让投影窗口显示欢迎幕布（快捷键 C）">🎭 幕布</button>
+      <div class="music-vol-group">
+        <button class="icon-btn" id="welcomeMusicBtn" title="手动播放/暂停开幕背景音乐">🎵 幕间音乐</button>
+        <input type="range" id="welcomeVolume" min="0" max="1" step="0.01" value="0.8" title="幕间音乐音量">
+      </div>
+      <button class="icon-btn" id="startShowBtn" title="让投影窗口显示当前节目（快捷键 G）">▣ 演出</button>
     </div>
   </div>
 
@@ -372,6 +380,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   const settingsBtn   = document.getElementById('settingsBtn');
   const showWelcomeBtn = document.getElementById('showWelcomeBtn');
   const welcomeMusicBtn = document.getElementById('welcomeMusicBtn');
+  const welcomeVolume   = document.getElementById('welcomeVolume');
   const startShowBtn  = document.getElementById('startShowBtn');
 
   const currentPanel    = document.getElementById('currentPanel');
@@ -478,7 +487,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         name: p.name, performer: p.performer,
         bgColor: p.bgColor, bgImagePath, bgVideoPath,
         index: idx + 1, total: programs.length,
-        trackTitle: activeTrack ? (activeTrack.title || '') : '',
+        trackTitle: activeTrack ? (activeTrack.title || String(activeTrack.name || '').replace(/\.[^.]+$/, '')) : '',
         trackIndex: tracks.length > 1 ? currentTrackIndex + 1 : 0,
         trackTotal: tracks.length > 1 ? tracks.length : 0,
       } : null
@@ -502,9 +511,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     }
   }
 
-  // Cycle through the welcome-music playlist: when one track ends, automatically move to
-  // the next ENABLED track, looping back to the first after the last (this "rotation" is
-  // expected once the operator has manually started playback).
+  // After the operator has manually pressed play: cycle selected (enabled) tracks
+  // forever. Never auto-stop; only the 幕间音乐 button pauses.
   welcomeMusic.addEventListener('ended', () => {
     const tracks = getActiveWelcomeTracks();
     if (!tracks.length) return;
@@ -616,13 +624,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   // ---- Curtain / stage reveal helpers ----
   function showCurtain() {
     showStarted = false;
+    audioEl.pause();
     pushDisplay('welcome');
     showWelcomeBtn.classList.add('active');
     startShowBtn.classList.remove('active');
   }
   function revealStage() {
     showStarted = true;
-    welcomeMusic.pause();
     pushDisplay('stage');
     startShowBtn.classList.add('active');
     showWelcomeBtn.classList.remove('active');
@@ -637,7 +645,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     if (!welcomeMusic.getAttribute('src')) { showToast('还没有设置开幕背景音乐，请到「⚙ 设置」里添加', 'warn'); return; }
     welcomeMusic.paused ? welcomeMusic.play().catch(() => {}) : welcomeMusic.pause();
   });
-  welcomeMusic.addEventListener('play',  () => { welcomeMusicBtn.classList.add('active'); welcomeMusicBtn.textContent = '❚❚ 开幕音乐'; });
+  welcomeMusic.addEventListener('play',  () => {
+    audioEl.pause();
+    welcomeMusicBtn.classList.add('active');
+    welcomeMusicBtn.textContent = '❚❚ 开幕音乐';
+  });
   welcomeMusic.addEventListener('pause', () => { welcomeMusicBtn.classList.remove('active'); welcomeMusicBtn.textContent = '🎵 开幕音乐'; });
 
   startShowBtn.addEventListener('click', () => {
@@ -657,7 +669,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     programs.forEach((p, idx) => {
       const row = document.createElement('div');
       row.className = 'program-item' + (p.id === currentId ? ' current' : '');
-      row.draggable = true;
       row.dataset.idx = idx;
       const tracks = getTracks(p);
       const musicTag = tracks.length
@@ -680,7 +691,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           <button class="mini-btn" data-act="edit">✎</button>
         </div>`;
       row.addEventListener('click', (e) => {
-        if (e.target.closest('.item-actions')) return;
+        if (e.target.closest('.item-actions') || e.target.closest('.drag-handle')) return;
+        if (p.id === currentId && showStarted) return;
         currentId = p.id;
         loadCurrent();
         revealStage();
@@ -689,14 +701,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       row.querySelector('[data-act="down"]').addEventListener('click', (e) => { e.stopPropagation(); move(idx, 1); });
       row.querySelector('[data-act="edit"]').addEventListener('click', (e) => { e.stopPropagation(); openEditor(p.id); });
 
-      // Drag-and-drop reordering (arbitrary position, not just adjacent)
-      row.addEventListener('dragstart', (e) => {
+      const handle = row.querySelector('.drag-handle');
+      handle.draggable = true;
+      handle.addEventListener('dragstart', (e) => {
         dragSrcIndex = idx;
         row.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', String(idx));
       });
-      row.addEventListener('dragend', () => {
+      handle.addEventListener('dragend', () => {
         row.classList.remove('dragging');
         programList.querySelectorAll('.program-item').forEach(el => el.classList.remove('drag-over-top', 'drag-over-bottom'));
       });
@@ -722,7 +735,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         if (dragSrcIndex < targetIdx) targetIdx -= 1;
         programs.splice(targetIdx, 0, moved);
         dragSrcIndex = null;
-        await persistData(); renderList();
+        await persistData();
+        afterReorder();
       });
 
       programList.appendChild(row);
@@ -733,7 +747,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     const j = idx + dir;
     if (j < 0 || j >= programs.length) return;
     [programs[idx], programs[j]] = [programs[j], programs[idx]];
-    await persistData(); renderList();
+    await persistData();
+    afterReorder();
+  }
+
+  function afterReorder() {
+    renderList();
+    const curIdx = programs.findIndex(p => p.id === currentId);
+    if (curIdx >= 0) {
+      currentOrder.textContent = `第 ${String(curIdx + 1).padStart(2, '0')} 场`;
+      const next = programs[curIdx + 1];
+      nextName.textContent = next ? next.name || '未命名' : '已是最后一个节目';
+    }
+    if (showStarted) pushDisplay('stage');
   }
 
   function escapeHtml(s) {
@@ -742,8 +768,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   }
 
   // ---- Load current program ----
-  function loadCurrent() {
-    currentTrackIndex = 0;
+  function loadCurrent(opts) {
+    const keepTrack = opts && opts.keepTrack;
+    if (!keepTrack) currentTrackIndex = 0;
     const p = programs.find(x => x.id === currentId);
     const idx = programs.findIndex(x => x.id === currentId);
 
@@ -775,32 +802,37 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     const next = programs[idx + 1];
     nextName.textContent = next ? next.name || '未命名' : '已是最后一个节目';
 
-    loadTrack();
+    const tracks = getTracks(p);
+    if (keepTrack && tracks.length) {
+      currentTrackIndex = Math.max(0, Math.min(currentTrackIndex, tracks.length - 1));
+    }
 
-    // Sync to display if show has started
-    if (showStarted) pushDisplay('stage');
+    loadTrack({ keepPlayback: keepTrack });
 
     renderList();
   }
 
   // ---- Load a specific track of the current program into the audio element ----
-  function loadTrack() {
-    audioEl.pause();
-    seek.value = 0; seek.max = 100;
-    curTime.textContent = '00:00'; durTime.textContent = '00:00';
-    playBtn.textContent = '▶';
-
+  function loadTrack(opts) {
     const p = programs.find(x => x.id === currentId);
     const tracks = getTracks(p);
     const track = tracks[currentTrackIndex];
+    const url = track ? window.api.toUrl(track.path) : null;
+    const keepPlayback = opts && opts.keepPlayback && url && audioEl.getAttribute('src') === url;
 
-    if (track) {
-      audioEl.src = window.api.toUrl(track.path);
-      audioHint.textContent = track.name || '已加载音乐';
-    } else {
-      audioEl.removeAttribute('src');
-      audioHint.textContent = '未设置音乐';
+    if (!keepPlayback) {
+      audioEl.pause();
+      seek.value = 0; seek.max = 100;
+      curTime.textContent = '00:00'; durTime.textContent = '00:00';
+      playBtn.textContent = '▶';
+      if (track) {
+        audioEl.src = url;
+      } else {
+        audioEl.removeAttribute('src');
+      }
     }
+
+    audioHint.textContent = track ? (track.name || '已加载音乐') : '未设置音乐';
 
     if (tracks.length > 1) {
       trackRow.classList.remove('hidden');
@@ -829,7 +861,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     if (!audioEl.getAttribute('src')) return;
     audioEl.paused ? audioEl.play().catch(() => {}) : audioEl.pause();
   });
-  audioEl.addEventListener('play',  () => { playBtn.textContent = '❚❚'; });
+  audioEl.addEventListener('play',  () => { playBtn.textContent = '❚❚'; welcomeMusic.pause(); });
   audioEl.addEventListener('pause', () => { playBtn.textContent = '▶'; });
   audioEl.addEventListener('loadedmetadata', () => {
     seek.max = audioEl.duration || 0;
@@ -861,6 +893,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   volume.addEventListener('input', () => { audioEl.volume = +volume.value; });
   audioEl.volume = +volume.value;
 
+  welcomeVolume.addEventListener('input', () => { welcomeMusic.volume = +welcomeVolume.value; });
+  welcomeMusic.volume = +welcomeVolume.value;
+
   function fmtTime(s) {
     s = Math.max(0, Math.floor(s || 0));
     return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -889,6 +924,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         break;
       case 'ArrowRight': case 'ArrowDown': e.preventDefault(); stepProgram(1);  break;
       case 'ArrowLeft':  case 'ArrowUp':   e.preventDefault(); stepProgram(-1); break;
+      case 'g': case 'G': e.preventDefault(); revealStage(); showToast('投影已切换到演出画面'); break;
+      case 'c': case 'C': e.preventDefault(); showCurtain(); showToast('投影已切换到欢迎幕布'); break;
       case 'Escape':
         if (drawerBackdrop.classList.contains('active'))  { drawerBackdrop.classList.remove('active'); break; }
         if (settingsModal.classList.contains('active'))   { settingsModal.classList.remove('active');  break; }
@@ -926,7 +963,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     programs = list.map(p => ({
       id: cid(), name: p.name||'', performer: p.performer||'', bgColor: p.bgColor||PALETTE[0],
       bgImagePath: p.bgImagePath||null, bgVideoPath: p.bgVideoPath||null, bgVideoName: p.bgVideoName||'',
-      audioTracks: Array.isArray(p.audioTracks) ? p.audioTracks.map(t => ({ id: tid(), path: t.path, name: t.name||'' }))
+      audioTracks: Array.isArray(p.audioTracks) ? p.audioTracks.map(t => ({
+        ...t, id: tid(), path: t.path, name: t.name || '',
+        title: t.title || '', bgImagePath: t.bgImagePath || null,
+        bgVideoPath: t.bgVideoPath || null, bgVideoName: t.bgVideoName || '',
+      }))
         : (p.audioPath ? [{ id: tid(), path: p.audioPath, name: p.audioName||'' }] : [])
     }));
     currentId = programs.length ? programs[0].id : null;
@@ -1112,7 +1153,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       programs.push(p); currentId = p.id;
     }
     drawerBackdrop.classList.remove('active');
-    await persistData(); loadCurrent();
+    await persistData();
+    loadCurrent({ keepTrack: editingId === currentId });
   });
 
   deleteBtn.addEventListener('click', async () => {
@@ -1135,7 +1177,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   });
   currentId = programs.length ? programs[0].id : null;
   applySettings(settings);
-  // Send initial welcome state to display
+  showWelcomeBtn.classList.add('active');
   pushDisplay('welcome');
   loadCurrent();
 
