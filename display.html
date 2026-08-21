@@ -85,16 +85,16 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
   will-change:transform;
 }
 
-/* Four Ken Burns variants — each fires once, then holds at final frame */
+/* Four Ken Burns variants — cycle continuously while the same image is on stage */
 @keyframes kb-zoom-in  { from{transform:scale(1.0) translate(0%,0%)} to{transform:scale(1.15) translate(-2%,-1.5%)} }
 @keyframes kb-zoom-out { from{transform:scale(1.15) translate(-1.5%,1%)} to{transform:scale(1.0) translate(1%,-0.5%)} }
 @keyframes kb-pan-r    { from{transform:scale(1.1) translate(-3%,0%)} to{transform:scale(1.1) translate(3%,0%)} }
 @keyframes kb-pan-l    { from{transform:scale(1.1) translate(3%,0.5%)} to{transform:scale(1.1) translate(-3%,-0.5%)} }
 
-#bgImage.kb-a{animation:kb-zoom-in  28s ease-in-out both;}
-#bgImage.kb-b{animation:kb-zoom-out 28s ease-in-out both;}
-#bgImage.kb-c{animation:kb-pan-r    32s linear       both;}
-#bgImage.kb-d{animation:kb-pan-l    32s linear       both;}
+#bgImage.kb-a{animation:kb-zoom-in  10s ease-in-out both;}
+#bgImage.kb-b{animation:kb-zoom-out 10s ease-in-out both;}
+#bgImage.kb-c{animation:kb-pan-r    10s ease-in-out both;}
+#bgImage.kb-d{animation:kb-pan-l    10s ease-in-out both;}
 
 #bgVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
 .stage-frame{position:absolute;inset:20px;border:1px solid rgba(201,162,39,.3);pointer-events:none;z-index:2;}
@@ -158,11 +158,40 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
   const stagePerformer = document.getElementById('stagePerformer');
 
   let curtainOpen = false;
+  let curtainTimer = null;
+  let stageGen = 0;
   const KB_CLASSES = ['kb-a', 'kb-b', 'kb-c', 'kb-d'];
+  const KB_DURATION_MS = 10000;
   let kbIdx = 0;
+  let kbTimer = null;
+  let currentBgImagePath = null;
   let snowflakesLogoPath = null;
 
-  function toFileUrl(p) { return 'file:///' + p.replace(/\\/g, '/'); }
+  function stopKenBurns() {
+    if (kbTimer) { clearTimeout(kbTimer); kbTimer = null; }
+    KB_CLASSES.forEach(c => bgImage.classList.remove(c));
+  }
+
+  function cycleKenBurns() {
+    KB_CLASSES.forEach(c => bgImage.classList.remove(c));
+    void bgImage.offsetWidth;
+    bgImage.classList.add(KB_CLASSES[kbIdx % KB_CLASSES.length]);
+    kbIdx++;
+    kbTimer = setTimeout(cycleKenBurns, KB_DURATION_MS);
+  }
+
+  function startKenBurns() {
+    stopKenBurns();
+    cycleKenBurns();
+  }
+
+  function toFileUrl(p) {
+    if (!p) return '';
+    const raw = String(p).replace(/\\/g, '/');
+    const m = raw.match(/^([A-Za-z]:)\/(.*)$/);
+    if (m) return 'file:///' + m[1] + '/' + m[2].split('/').map(encodeURIComponent).join('/');
+    return 'file:///' + raw.split('/').map(encodeURIComponent).join('/');
+  }
 
   // ---- Remove light/white background from image via Canvas ----
   function makeTransparentDataUrl(src) {
@@ -239,14 +268,24 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
     }
   }
 
+  function pauseBackgroundVideo() {
+    bgVideo.pause();
+    bgVideo.removeAttribute('src');
+    bgVideo.load();
+    bgVideo.style.display = 'none';
+  }
+
   function openCurtain(cb) {
-    if (curtainOpen) { cb && cb(); return; }
+    const gen = ++stageGen;
+    const done = () => { if (gen === stageGen && cb) cb(); };
+    if (curtainOpen) { done(); return; }
     curtainLeft.classList.add('open');
     curtainRight.classList.add('open');
     curtainOpen = true;
-    setTimeout(() => {
+    clearTimeout(curtainTimer);
+    curtainTimer = setTimeout(() => {
       welcome.classList.add('hidden');
-      cb && cb();
+      done();
     }, 1100);
   }
 
@@ -263,26 +302,27 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
     stagePerformer.textContent = program.performer || '';
 
     if (program.bgVideoPath) {
-      // Video: hide image layer, play video
+      currentBgImagePath = null;
+      stopKenBurns();
       bgImage.style.display = 'none';
       const url = toFileUrl(program.bgVideoPath);
       if (bgVideo.src !== url) { bgVideo.src = url; bgVideo.load(); }
       bgVideo.style.display = 'block';
+      bgVideo.play().catch(() => {});
       stage.style.backgroundColor = '#0E0B10';
     } else if (program.bgImagePath) {
-      // Image: hide video, apply Ken Burns animation
-      bgVideo.pause(); bgVideo.src = ''; bgVideo.style.display = 'none';
+      pauseBackgroundVideo();
       bgImage.style.backgroundImage = `url("${toFileUrl(program.bgImagePath)}")`;
       bgImage.style.display = 'block';
-      // Cycle through 4 animation variants; restart by forcing reflow
-      KB_CLASSES.forEach(c => bgImage.classList.remove(c));
-      void bgImage.offsetWidth;
-      bgImage.classList.add(KB_CLASSES[kbIdx % KB_CLASSES.length]);
-      kbIdx++;
+      if (currentBgImagePath !== program.bgImagePath) {
+        currentBgImagePath = program.bgImagePath;
+        startKenBurns();
+      }
       stage.style.backgroundColor = '#0E0B10';
     } else {
-      // Solid colour fallback
-      bgVideo.pause(); bgVideo.src = ''; bgVideo.style.display = 'none';
+      currentBgImagePath = null;
+      stopKenBurns();
+      pauseBackgroundVideo();
       bgImage.style.display = 'none';
       stage.style.backgroundColor = program.bgColor || '#7A1F3D';
     }
@@ -293,7 +333,11 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
     if (state.settings) applySettings(state.settings);
 
     if (state.mode === 'welcome') {
-      // Reset to welcome screen
+      stageGen++;
+      clearTimeout(curtainTimer);
+      currentBgImagePath = null;
+      stopKenBurns();
+      pauseBackgroundVideo();
       curtainLeft.classList.remove('open');
       curtainRight.classList.remove('open');
       curtainOpen = false;
@@ -305,7 +349,11 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
 
   // Load initial settings on startup
   window.displayAPI.getInitialState().then(state => {
-    if (state && state.settings) applySettings(state.settings);
+    if (!state) return;
+    if (state.settings) applySettings(state.settings);
+    if (state.mode === 'stage' && state.program) {
+      openCurtain(() => showStage(state.program));
+    }
   });
 })();
 </script>
