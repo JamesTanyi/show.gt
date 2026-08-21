@@ -22,11 +22,17 @@ contextBridge.exposeInMainWorld('api', {
 
   // Send display state to projection window
   setDisplayState: (state) => ipcRenderer.invoke('display:setState', state),
+  swapWindows: () => ipcRenderer.invoke('windows:swap'),
+  quitApp: () => ipcRenderer.invoke('app:quit'),
 
-  // Convert absolute Windows path to file:// URL
+  // Convert absolute Windows path to file:// URL (encode #, spaces, CJK)
   toUrl: (absPath) => {
     if (!absPath) return null;
-    return 'file:///' + absPath.replace(/\\/g, '/');
+    const raw = String(absPath).replace(/\\/g, '/');
+    const m = raw.match(/^([A-Za-z]:)\/(.*)$/);
+    if (m) return 'file:///' + m[1] + '/' + m[2].split('/').map(encodeURIComponent).join('/');
+    if (raw.startsWith('/')) return 'file://' + raw.split('/').map((seg, i) => i === 0 ? '' : encodeURIComponent(seg)).join('/');
+    return 'file:///' + raw.split('/').map(encodeURIComponent).join('/');
   }
 });
 
