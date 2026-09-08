@@ -24,6 +24,7 @@
       "preload.js",
       "index.html",
       "display.html",
+      "assets/**",
       "node_modules/**/*"
     ],
     "win": {

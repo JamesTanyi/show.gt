@@ -34,14 +34,19 @@ input,textarea{font-family:inherit;}
 #app{display:flex;flex-direction:column;height:100vh;}
 
 /* ---- Topbar ---- */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--bg-2);flex:0 0 auto;}
-.brand{display:flex;align-items:baseline;gap:12px;}
+.topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--bg-2);flex:0 0 auto;gap:10px 16px;}
+.brand{display:flex;align-items:baseline;gap:12px;flex:0 0 auto;white-space:nowrap;}
 .brand h1{font-family:var(--font-display);font-size:20px;font-weight:600;margin:0;}
 .brand span{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.12em;}
-.topbar-actions{display:flex;gap:8px;}
-.icon-btn{background:var(--surface);border:1px solid var(--line);color:var(--cream);padding:8px 14px;border-radius:3px;font-size:13px;display:flex;align-items:center;gap:7px;letter-spacing:.03em;transition:.2s;}
+.topbar-actions{display:flex;gap:8px;flex:1 1 560px;flex-wrap:wrap;justify-content:flex-end;min-width:0;}
+.icon-btn{background:var(--surface);border:1px solid var(--line);color:var(--cream);padding:8px 12px;border-radius:3px;font-size:13px;display:flex;align-items:center;gap:7px;letter-spacing:.03em;transition:.2s;white-space:nowrap;flex:0 0 auto;}
 .icon-btn:hover{border-color:var(--gold);color:var(--gold-light);}
 .icon-btn.active{border-color:var(--gold);color:var(--gold-light);background:var(--surface-2);}
+.music-vol-group{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:3px;}
+.music-vol-group .icon-btn{border:none;border-radius:3px 0 0 3px;background:transparent;}
+.music-vol-group .icon-btn:hover{background:var(--surface-2);}
+.music-vol-group .icon-btn.active{background:var(--surface-2);}
+#welcomeVolume{width:70px;margin:0 8px;cursor:pointer;}
 
 /* ---- Main grid: sidebar + right panel ---- */
 .main-grid{flex:1 1 auto;display:grid;grid-template-columns:340px 1fr;min-height:0;}
@@ -76,40 +81,63 @@ input,textarea{font-family:inherit;}
 .btn-add:hover{border-color:var(--gold);color:var(--gold-light);}
 
 /* ---- Track row (current panel) ---- */
-.track-row{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12px;color:var(--muted);}
+.track-toolbar{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.track-toolbar.hidden{display:none;}
+.track-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);}
 .track-row.hidden{display:none;}
 .mini-track-btn{background:var(--surface);border:1px solid var(--line);color:var(--cream);padding:3px 9px;border-radius:3px;font-size:12px;cursor:pointer;}
 .mini-track-btn:hover{border-color:var(--gold);color:var(--gold-light);}
 .track-info{font-family:var(--font-mono);letter-spacing:.03em;}
+.song-list{display:flex;flex-direction:column;gap:4px;margin-top:8px;max-height:28vh;overflow-y:auto;}
+.song-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;cursor:pointer;font-size:12px;}
+.song-item:hover{border-color:var(--gold);}
+.song-item.active{border-color:var(--gold);background:var(--surface-2);}
+.song-item-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--cream);}
+.song-item .track-num{font-family:var(--font-mono);font-size:11px;color:var(--gold);min-width:16px;}
+.song-item-meta{font-size:10px;font-family:var(--font-mono);color:var(--muted);flex:0 0 auto;}
+.track-card-row{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--muted);}
 
 /* ---- Track list editor (drawer) ---- */
 .track-list-edit{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
 .track-edit-item{display:flex;align-items:center;gap:8px;background:var(--bg-2);border:1px solid var(--line);border-radius:3px;padding:6px 8px;}
+.track-edit-item.track-card{flex-direction:column;align-items:stretch;padding:10px;gap:0;}
+.track-card-head{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.track-card-label{font-size:10px;color:var(--muted);letter-spacing:.06em;min-width:36px;flex:0 0 auto;}
 .track-edit-item input[type=checkbox]{accent-color:var(--gold);width:15px;height:15px;flex:0 0 auto;cursor:pointer;}
 .track-edit-item .track-num{font-family:var(--font-mono);font-size:11px;color:var(--gold);min-width:16px;}
 .track-edit-item .track-name{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .track-edit-item.disabled .track-name{color:var(--muted);text-decoration:line-through;opacity:.6;}
-.track-edit-item .track-actions{display:flex;gap:2px;}
+.track-edit-item .track-actions{display:flex;gap:2px;align-items:center;flex:0 0 auto;}
 .track-empty-hint{font-size:12px;color:var(--muted);padding:6px 2px;}
-.track-bg-row{display:flex;align-items:center;gap:5px;margin-top:4px;padding-left:20px;flex-wrap:wrap;}
-.track-bg-info{font-size:10px;font-family:var(--font-mono);color:var(--muted);flex:1;}
-.track-bg-info.set{color:var(--gold-light);}
+.track-bg-editor{padding:8px 0 2px 8px;display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);margin-top:8px;}
+.track-bg-label{font-size:10px;color:var(--muted);letter-spacing:.04em;margin-top:2px;}
+.filebtn.mini{display:inline-block;padding:3px 8px;font-size:11px;margin:0;}
+.media-thumb{width:36px;height:36px;object-fit:cover;border-radius:3px;background:#0a080c;flex:0 0 auto;}
+.media-thumb-vid{display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold-light);}
 
 /* ---- Right panel ---- */
 .right-panel{display:flex;flex-direction:column;min-height:0;background:var(--bg);}
 
 /* Current program display */
-.current-panel{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 48px;position:relative;overflow:hidden;}
-.current-panel .bg-blur{
-  position:absolute;inset:0;
-  background-size:cover;background-position:center;
-  opacity:.18;filter:blur(10px);transform:scale(1.05);
-  pointer-events:none;transition:background-image .3s;
+.current-panel{
+  flex:1;display:flex;flex-direction:column;justify-content:flex-start;
+  padding:16px 24px 10px;position:relative;overflow:hidden;min-height:0;gap:10px;
 }
-.current-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.25em;color:var(--gold-light);margin-bottom:12px;}
-.current-title{font-family:var(--font-display);font-size:clamp(28px,3.5vw,52px);font-weight:700;margin:0 0 10px;line-height:1.2;position:relative;}
-.current-performer{font-size:15px;color:var(--muted);position:relative;}
-.empty-hint{color:var(--muted);font-family:var(--font-display);font-size:18px;}
+.preview-stage{
+  flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;
+}
+.show-preview-wrap{
+  position:relative;width:100%;max-height:100%;aspect-ratio:16/9;
+  background:#0a080c;border:1px solid var(--line);border-radius:4px;overflow:hidden;
+}
+.show-preview-wrap iframe{
+  position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;background:#000;
+}
+.current-meta{flex:0 0 auto;position:relative;}
+.current-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.25em;color:var(--gold-light);margin-bottom:8px;}
+.current-title{font-family:var(--font-display);font-size:clamp(20px,2.4vw,36px);font-weight:700;margin:0 0 6px;line-height:1.2;position:relative;}
+.current-performer{font-size:14px;color:var(--muted);position:relative;}
+.empty-hint{color:var(--muted);font-family:var(--font-display);font-size:16px;}
 
 /* Next program preview */
 .next-bar{background:var(--bg-2);border-top:1px solid var(--line);padding:12px 48px;display:flex;align-items:center;gap:16px;flex:0 0 auto;}
@@ -123,7 +151,7 @@ input,textarea{font-family:inherit;}
 .time.end{text-align:right;}
 input[type=range]{-webkit-appearance:none;appearance:none;height:3px;background:var(--line);border-radius:2px;flex:1;outline:none;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--gold);cursor:pointer;}
-.controls-row{display:flex;align-items:center;justify-content:space-between;}
+.controls-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
 .transport{display:flex;align-items:center;gap:16px;}
 .transport button{background:none;border:none;color:var(--cream);font-size:18px;padding:6px;cursor:pointer;}
 .transport button:hover{color:var(--gold-light);}
@@ -132,23 +160,35 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 .volume-row{display:flex;align-items:center;gap:8px;width:140px;}
 .vol-icon{font-size:13px;color:var(--muted);}
 .no-audio-hint{font-size:11px;color:var(--muted);font-family:var(--font-mono);}
+.audio-out-row{display:flex;align-items:center;gap:6px;min-width:0;}
+.audio-out-row label{font-size:11px;color:var(--muted);white-space:nowrap;}
+.audio-out-row select,.field select{
+  background:var(--bg-2);border:1px solid var(--line);color:var(--cream);
+  padding:6px 8px;border-radius:3px;font-size:12px;max-width:240px;
+}
+.field select{width:100%;max-width:none;padding:10px 12px;font-size:14px;}
+.fit-row{display:flex;align-items:center;gap:10px;}
+.fit-row input[type=range]{flex:1;margin:0;}
+.fit-row .fit-val{font-family:var(--font-mono);font-size:12px;color:var(--gold-light);min-width:52px;text-align:right;}
+.field-hint{font-size:11px;color:var(--muted);margin:6px 0 0;line-height:1.55;}
 
 /* ---- Editor drawer ---- */
 .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none;align-items:center;justify-content:center;}
 .drawer-backdrop.active{display:flex;}
-.drawer{width:420px;max-width:92vw;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:26px;max-height:88vh;overflow-y:auto;}
+.drawer{width:500px;max-width:92vw;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:26px;max-height:88vh;overflow-y:auto;}
 .drawer h3{font-family:var(--font-display);font-size:18px;margin:0 0 18px;}
 .field{margin-bottom:16px;}
 .field label{display:block;font-size:12px;color:var(--muted);letter-spacing:.05em;margin-bottom:6px;}
+.field label.filebtn{display:inline-block;margin-bottom:0;letter-spacing:0;}
 .field input[type=text]{width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--cream);padding:10px 12px;border-radius:3px;font-size:14px;}
 .field input[type=text]:focus{outline:none;border-color:var(--gold);}
 .colorset{display:flex;gap:8px;flex-wrap:wrap;}
 .swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;}
 .swatch.sel{border-color:var(--gold-light);}
 .filerow{display:flex;align-items:center;gap:10px;}
-.filerow label.filebtn{background:var(--bg-2);border:1px solid var(--line);padding:8px 13px;border-radius:3px;font-size:12px;color:var(--cream);cursor:pointer;}
-.filerow label.filebtn:hover{border-color:var(--gold);}
-.filerow input[type=file]{display:none;}
+.filerow label.filebtn,.filebtn{background:var(--bg-2);border:1px solid var(--line);padding:8px 13px;border-radius:3px;font-size:12px;color:var(--cream);cursor:pointer;}
+.filerow label.filebtn:hover,.filebtn:hover{border-color:var(--gold);}
+.filerow input[type=file],.filebtn input[type=file]{display:none;}
 .filename{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
 .drawer-actions{display:flex;justify-content:space-between;margin-top:22px;gap:10px;}
 .btn-danger{background:none;border:1px solid rgba(220,90,90,.4);color:#e08080;padding:8px 14px;border-radius:3px;font-size:13px;cursor:pointer;}
@@ -178,6 +218,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 </head>
 <body>
 <div id="app">
+  
 
   <!-- ======= TOPBAR ======= -->
   <div class="topbar">
@@ -191,8 +232,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <button class="icon-btn" id="importBtn">⬆ 导入</button>
       <button class="icon-btn" id="settingsBtn">⚙ 设置</button>
       <button class="icon-btn" id="showWelcomeBtn" title="让投影窗口显示欢迎幕布">🎭 幕布</button>
-      <button class="icon-btn" id="welcomeMusicBtn" title="手动播放/暂停开幕背景音乐">🎵 幕间音乐</button>
+      <div class="music-vol-group">
+        <button class="icon-btn" id="welcomeMusicBtn" title="手动播放/暂停开幕背景音乐">🎵 幕间音乐</button>
+        <input type="range" id="welcomeVolume" min="0" max="1" step="0.01" value="0.8" title="幕间音乐音量">
+      </div>
       <button class="icon-btn" id="startShowBtn" title="让投影窗口显示当前节目">▣ 演出</button>
+      <button class="icon-btn" id="relayoutBtn" title="接上投影仪/外接屏后点击此按钮，重新检测屏幕并分屏显示">🖥 检测投影</button>
     </div>
   </div>
 
@@ -214,14 +259,23 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     <!-- Right: current program info + player -->
     <div class="right-panel">
       <div class="current-panel" id="currentPanel">
-        <div class="bg-blur" id="bgBlur"></div>
-        <div class="current-eyebrow" id="currentOrder"></div>
-        <h2 class="current-title" id="currentName"><span class="empty-hint">暂无节目 · 请在左侧新增</span></h2>
-        <div class="current-performer" id="currentPerformer"></div>
-        <div class="track-row hidden" id="trackRow">
-          <button class="mini-track-btn" id="trackPrevBtn" title="上一首">⏮ 上一首</button>
-          <span class="track-info" id="trackInfo"></span>
-          <button class="mini-track-btn" id="trackNextBtn" title="下一首">下一首 ⏭</button>
+        <div class="preview-stage">
+          <div class="show-preview-wrap">
+            <iframe id="showPreview" src="display.html?preview=1" title="演出预览" tabindex="-1" allow="autoplay"></iframe>
+          </div>
+        </div>
+        <div class="current-meta">
+          <div class="current-eyebrow" id="currentOrder"></div>
+          <h2 class="current-title" id="currentName"><span class="empty-hint">暂无节目 · 请在左侧新增</span></h2>
+          <div class="current-performer" id="currentPerformer"></div>
+          <div class="track-toolbar hidden" id="trackToolbar">
+            <div class="track-row hidden" id="trackRow">
+              <button class="mini-track-btn" id="trackPrevBtn" title="上一首">⏮ 上一首</button>
+              <span class="track-info" id="trackInfo"></span>
+              <button class="mini-track-btn" id="trackNextBtn" title="下一首">下一首 ⏭</button>
+            </div>
+          </div>
+          <div class="song-list" id="songList"></div>
         </div>
       </div>
 
@@ -238,13 +292,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         </div>
         <div class="controls-row">
           <div class="transport">
-            <button id="prevBtn" title="上一个 (←)">⏮</button>
-            <button id="playBtn" class="play-btn" title="播放/暂停 (空格)">▶</button>
-            <button id="nextBtn" title="下一个 (→)">⏭</button>
+            <button id="prevBtn" title="上一首，本场没有上一首则上一场 (←)">⏮</button>
+            <button id="playBtn" class="play-btn" title="播放本首并跳转投影 (空格)">▶</button>
+            <button id="nextBtn" title="下一首，本场没有下一首则下一场 (→)">⏭</button>
           </div>
           <div class="volume-row">
             <span class="vol-icon">♪</span>
             <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8">
+          </div>
+          <div class="audio-out-row" title="HDMI 投影仪会同时传画面和声音，请选择投影对应的输出设备">
+            <label>输出</label>
+            <select id="audioOutputSelect">
+              <option value="">本机（电脑音频孔）</option>
+            </select>
+            <span class="no-audio-hint" id="audioOutNow">现走：电脑音频孔</span>
           </div>
           <span class="no-audio-hint" id="audioHint">未设置音乐</span>
         </div>
@@ -258,27 +319,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   <div class="drawer">
     <h3 id="drawerTitle">新增节目</h3>
     <div class="field"><label>节目名称</label><input type="text" id="fName" placeholder="例如：开场舞《盛世欢歌》"></div>
-    <div class="field"><label>表演者 / 单位</label><input type="text" id="fPerformer" placeholder="例如：舞蹈队"></div>
-    <div class="field"><label>背景颜色</label><div class="colorset" id="colorSet"></div></div>
+    <div class="field"><label>表演单位</label><input type="text" id="fPerformer" placeholder="例如：舞蹈队"></div>
     <div class="field">
-      <label>背景图片（可选，有视频时被覆盖）</label>
-      <div class="filerow">
-        <label class="filebtn">选择图片<input type="file" id="fImage" accept="image/*"></label>
-        <span class="filename" id="imageName">未选择</span>
-      </div>
-    </div>
-    <div class="field">
-      <label>背景视频（可选，优先于图片，循环播放）</label>
-      <div class="filerow">
-        <label class="filebtn">选择视频<input type="file" id="fVideo" accept="video/*"></label>
-        <span class="filename" id="videoName">未选择</span>
-        <button class="mini-btn" id="clearVideoBtn" title="清除视频" style="opacity:1;font-size:14px;padding:3px 6px;">✕</button>
-      </div>
-    </div>
-    <div class="field">
-      <label>节目音乐（可添加多首，按列表顺序连续播放——适合一人演唱多首歌）</label>
+      <label>曲目（每首：歌名 + 伴奏可空 + 背景图或视频，可多份轮播）</label>
       <div class="track-list-edit" id="trackListEdit"></div>
-      <label class="filebtn" style="display:inline-block;">＋ 添加音乐（可一次多选）<input type="file" id="fAudio" accept="audio/*" multiple></label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="filebtn" id="addTracksBtn">＋ 添加曲目（选伴奏文件）</button>
+        <button type="button" class="filebtn" id="addManualTrackBtn">＋ 手动添加曲目</button>
+      </div>
     </div>
     <div class="drawer-actions">
       <button class="btn-danger" id="deleteBtn">删除节目</button>
@@ -310,6 +358,38 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <div class="track-list-edit" id="welcomeMusicListEdit"></div>
       <label class="filebtn" style="display:inline-block;">＋ 添加音乐（可一次多选）<input type="file" id="settingWelcomeMusic" accept="audio/*" multiple></label>
     </div>
+    <div class="field">
+      <label>音频输出设备</label>
+      <select id="settingAudioOutput">
+        <option value="">系统默认（本机扬声器）</option>
+      </select>
+      <p class="field-hint">投影仪用 HDMI 同一条线传画面和声音时：先点「检测投影」，程序会尽量自动切到 HDMI 音频。也可在此手动选择。单屏预览时仍走本机扬声器。</p>
+    </div>
+    <div class="field">
+      <label>投影画面校正（拖动时投影立刻变化，看幕布调）</label>
+      <div class="fit-row" title="画面整体上移，消除上部白边、标题偏低">
+        <span style="min-width:4.5em;font-size:12px;color:var(--muted);">上移</span>
+        <input type="range" id="settingProjY" min="0" max="18" step="0.5" value="0">
+        <span class="fit-val" id="settingProjYVal">0</span>
+      </div>
+      <div class="fit-row" title="画面左低右高时，把滑条往右拖">
+        <span style="min-width:4.5em;font-size:12px;color:var(--muted);">旋转</span>
+        <input type="range" id="settingProjRot" min="-8" max="8" step="0.1" value="0">
+        <span class="fit-val" id="settingProjRotVal">0°</span>
+      </div>
+      <div class="fit-row" title="左右平移">
+        <span style="min-width:4.5em;font-size:12px;color:var(--muted);">左右</span>
+        <input type="range" id="settingProjX" min="-12" max="12" step="0.5" value="0">
+        <span class="fit-val" id="settingProjXVal">0</span>
+      </div>
+      <div class="fit-row" title="略微放大可盖住旋转后露出的黑边">
+        <span style="min-width:4.5em;font-size:12px;color:var(--muted);">放大</span>
+        <input type="range" id="settingProjScale" min="1" max="1.18" step="0.01" value="1">
+        <span class="fit-val" id="settingProjScaleVal">100%</span>
+      </div>
+      <p class="field-hint">左低右高 → 把「旋转」往右拖。上部有白边或整体偏低 → 先点「检测投影」，再拖「上移」。边缘还有缝就略微「放大」。点下方「恢复水平」可清零。</p>
+      <button type="button" class="icon-btn" id="settingProjReset" style="margin-top:8px;">恢复水平</button>
+    </div>
     <div class="modal-actions">
       <button class="icon-btn" id="settingsCancelBtn">取消</button>
       <button class="btn-primary" id="settingsSaveBtn">保存设置</button>
@@ -339,25 +419,188 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 
   const PALETTE = ['#7A1F3D', '#1F3D4A', '#3D2F1F', '#1F4A2E', '#4A1F3D', '#2A2438'];
   let programs = [], currentId = null, editingId = null;
-  let pendingImagePath = null, pendingImageName = '';
-  let pendingVideoPath = null, pendingVideoName = '';
   let pendingAudioTracks = [];
-  let pendingColor = PALETTE[0];
   let currentSettings = {};
   let pendingWelcomeMusicTracks = [];
   let welcomeMusicIndex = 0;
   let pendingLogoPath = null;
   let showStarted = false; // whether projection is showing stage (not welcome)
+  let lastDisplayPayload = null;
   let currentTrackIndex = 0;
   let dragSrcIndex = null;
 
   function cid() { return 'p_' + Math.random().toString(36).slice(2, 9); }
   function tid() { return 't_' + Math.random().toString(36).slice(2, 9); }
 
+  function getBgVideos(obj) {
+    if (!obj) return [];
+    if (Array.isArray(obj.bgVideoPaths) && obj.bgVideoPaths.length) {
+      return obj.bgVideoPaths.filter(x => x && x.path).map(x => ({
+        id: x.id || tid(), path: x.path, name: x.name || ''
+      }));
+    }
+    if (obj.bgVideoPath) return [{ id: tid(), path: obj.bgVideoPath, name: obj.bgVideoName || '' }];
+    return [];
+  }
+
+  function acceptToFilters(accept) {
+    if (!accept) return [];
+    if (accept.startsWith('image')) return [{ name: '图片', extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'] }];
+    if (accept.startsWith('video')) return [{ name: '视频', extensions: ['mp4', 'webm', 'mov', 'mkv', 'avi'] }];
+    if (accept.startsWith('audio')) return [{ name: '音频', extensions: ['mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg', 'wma'] }];
+    if (accept === 'media/*') return [{ name: '背景', extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'mp4', 'webm', 'mov', 'mkv', 'avi'] }];
+    return [];
+  }
+
+  function mediaKind(name) {
+    const ext = String(name || '').split('.').pop().toLowerCase();
+    if (['mp4', 'webm', 'mov', 'mkv', 'avi'].includes(ext)) return 'video';
+    return 'image';
+  }
+
+  function trackBgItems(t) {
+    if (!t) return [];
+    if (Array.isArray(t.bgItems)) {
+      return t.bgItems.filter(x => x && x.path).map(x => ({
+        id: x.id || tid(), path: x.path, name: x.name || '',
+        kind: x.kind || mediaKind(x.name || x.path)
+      }));
+    }
+    return [
+      ...getBgImages(t).map(x => ({ ...x, kind: 'image' })),
+      ...getBgVideos(t).map(x => ({ ...x, kind: 'video' }))
+    ];
+  }
+
+  function splitBgItems(items) {
+    const list = Array.isArray(items) ? items : [];
+    return {
+      bgImagePaths: list.filter(x => x.kind !== 'video').map(x => ({ id: x.id || tid(), path: x.path, name: x.name || '' })),
+      bgVideoPaths: list.filter(x => x.kind === 'video').map(x => ({ id: x.id || tid(), path: x.path, name: x.name || '' }))
+    };
+  }
+
+  function inheritProgramBgOntoTracks(p) {
+    if (!p) return;
+    const imgs = getBgImages(p);
+    const vids = getBgVideos(p);
+    if (!imgs.length && !vids.length) return;
+    getTracks(p).forEach(t => {
+      if (getBgImages(t).length || getBgVideos(t).length) return;
+      t.bgImagePaths = imgs.map(x => ({ id: tid(), path: x.path, name: x.name || '' }));
+      t.bgVideoPaths = vids.map(x => ({ id: tid(), path: x.path, name: x.name || '' }));
+    });
+  }
+
+  async function pickFiles(accept, multiple) {
+    if (window.api && typeof window.api.openFile === 'function') {
+      const properties = ['openFile'];
+      if (multiple) properties.push('multiSelections');
+      const r = await window.api.openFile({
+        title: accept === 'media/*' ? '选择背景（图片或视频，可多选）'
+          : accept && accept.startsWith('image') ? '选择背景图'
+          : accept && accept.startsWith('audio') ? '选择伴奏'
+          : accept && accept.startsWith('video') ? '选择背景视频'
+          : '选择文件',
+        filters: acceptToFilters(accept),
+        properties
+      });
+      if (!r) return [];
+      const paths = Array.isArray(r) ? r : [r];
+      return paths.map(p => ({ path: p, name: (String(p).split(/[/\\]/).pop() || p) }));
+    }
+    return new Promise((resolve) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = accept;
+      if (multiple) input.multiple = true;
+      input.addEventListener('change', () => resolve(Array.from(input.files || [])));
+      input.addEventListener('cancel', () => resolve([]));
+      input.click();
+    });
+  }
+
+  async function copyFiles(files) {
+    const out = [];
+    for (const file of files) {
+      const r = await window.api.copyMedia(file.path);
+      if (r.ok) out.push({ id: tid(), path: r.path, name: file.name });
+      else showToast(`「${file.name}」复制失败`, 'error');
+    }
+    return out;
+  }
+
+  function renderMediaList(container, list, opts) {
+    container.innerHTML = '';
+    if (!list.length) {
+      container.innerHTML = `<div class="track-empty-hint">${opts.emptyHint}</div>`;
+      return;
+    }
+    list.forEach((item, i) => {
+      const kind = item.kind || opts.kind || 'image';
+      const row = document.createElement('div');
+      row.className = 'track-edit-item';
+      const thumb = kind === 'image'
+        ? `<img class="media-thumb" alt="">`
+        : `<span class="media-thumb media-thumb-vid">▶</span>`;
+      row.innerHTML = `
+        ${thumb}
+        <span class="track-num">${i + 1}</span>
+        <span class="track-name">${escapeHtml(item.name || (kind === 'video' ? '已设置视频' : '已设置图片'))}</span>
+        <div class="track-actions">
+          <button class="mini-btn" data-act="up" title="上移">↑</button>
+          <button class="mini-btn" data-act="down" title="下移">↓</button>
+          <button class="mini-btn" data-act="rep" title="更换此文件">换</button>
+          <button class="mini-btn" data-act="del" title="删除">✕</button>
+        </div>`;
+      if (kind === 'image') {
+        const imgEl = row.querySelector('.media-thumb');
+        imgEl.src = window.api.toUrl(item.path);
+        imgEl.addEventListener('error', () => { imgEl.style.visibility = 'hidden'; });
+      }
+      row.querySelector('[data-act="up"]').addEventListener('click', () => {
+        if (i === 0) return;
+        [list[i - 1], list[i]] = [list[i], list[i - 1]];
+        opts.onChange();
+      });
+      row.querySelector('[data-act="down"]').addEventListener('click', () => {
+        if (i === list.length - 1) return;
+        [list[i + 1], list[i]] = [list[i], list[i + 1]];
+        opts.onChange();
+      });
+      row.querySelector('[data-act="rep"]').addEventListener('click', async () => {
+        const accept = kind === 'video' ? 'video/*' : 'image/*';
+        const files = await pickFiles(accept, false);
+        if (!files.length) return;
+        const copied = await copyFiles(files.slice(0, 1));
+        if (!copied.length) return;
+        list[i] = { ...copied[0], kind };
+        showToast('已更换');
+        opts.onChange();
+      });
+      row.querySelector('[data-act="del"]').addEventListener('click', () => {
+        list.splice(i, 1);
+        opts.onChange();
+      });
+      container.appendChild(row);
+    });
+  }
+
   function getTracks(p) {
     if (!p) return [];
     if (Array.isArray(p.audioTracks)) return p.audioTracks;
     if (p.audioPath) return [{ id: tid(), path: p.audioPath, name: p.audioName || '' }];
+    return [];
+  }
+
+  function getBgImages(obj) {
+    if (!obj) return [];
+    if (Array.isArray(obj.bgImagePaths) && obj.bgImagePaths.length) {
+      return obj.bgImagePaths.filter(x => x && x.path).map(x => ({
+        id: x.id || tid(), path: x.path, name: x.name || ''
+      }));
+    }
+    if (obj.bgImagePath) return [{ id: tid(), path: obj.bgImagePath, name: obj.bgImageName || '' }];
     return [];
   }
 
@@ -372,18 +615,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   const settingsBtn   = document.getElementById('settingsBtn');
   const showWelcomeBtn = document.getElementById('showWelcomeBtn');
   const welcomeMusicBtn = document.getElementById('welcomeMusicBtn');
+  const welcomeVolume   = document.getElementById('welcomeVolume');
   const startShowBtn  = document.getElementById('startShowBtn');
+  const relayoutBtn   = document.getElementById('relayoutBtn');
 
   const currentPanel    = document.getElementById('currentPanel');
-  const bgBlur          = document.getElementById('bgBlur');
+  const showPreview     = document.getElementById('showPreview');
   const currentOrder    = document.getElementById('currentOrder');
   const currentName     = document.getElementById('currentName');
   const currentPerformer = document.getElementById('currentPerformer');
   const nextName        = document.getElementById('nextName');
+  const trackToolbar     = document.getElementById('trackToolbar');
   const trackRow         = document.getElementById('trackRow');
   const trackInfo        = document.getElementById('trackInfo');
   const trackPrevBtn     = document.getElementById('trackPrevBtn');
   const trackNextBtn     = document.getElementById('trackNextBtn');
+  const songList         = document.getElementById('songList');
 
   const audioEl    = document.getElementById('audioEl');
   const welcomeMusic = document.getElementById('welcomeMusic');
@@ -395,18 +642,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   const durTime    = document.getElementById('durTime');
   const volume     = document.getElementById('volume');
   const audioHint  = document.getElementById('audioHint');
+  const audioOutputSelect   = document.getElementById('audioOutputSelect');
+  const settingAudioOutput  = document.getElementById('settingAudioOutput');
+  const audioOutNow         = document.getElementById('audioOutNow');
 
   const drawerBackdrop = document.getElementById('drawerBackdrop');
   const drawerTitle    = document.getElementById('drawerTitle');
   const fName          = document.getElementById('fName');
   const fPerformer     = document.getElementById('fPerformer');
-  const colorSet       = document.getElementById('colorSet');
-  const fImage         = document.getElementById('fImage');
-  const imageName      = document.getElementById('imageName');
-  const fVideo         = document.getElementById('fVideo');
-  const videoNameEl    = document.getElementById('videoName');
-  const clearVideoBtn  = document.getElementById('clearVideoBtn');
-  const fAudio         = document.getElementById('fAudio');
+  const addTracksBtn   = document.getElementById('addTracksBtn');
+  const addManualTrackBtn = document.getElementById('addManualTrackBtn');
   const trackListEdit  = document.getElementById('trackListEdit');
   const saveBtn        = document.getElementById('saveBtn');
   const cancelBtn      = document.getElementById('cancelBtn');
@@ -423,6 +668,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   const welcomeMusicListEdit    = document.getElementById('welcomeMusicListEdit');
   const settingsSaveBtn         = document.getElementById('settingsSaveBtn');
   const settingsCancelBtn       = document.getElementById('settingsCancelBtn');
+  const settingProjX            = document.getElementById('settingProjX');
+  const settingProjY            = document.getElementById('settingProjY');
+  const settingProjRot          = document.getElementById('settingProjRot');
+  const settingProjScale        = document.getElementById('settingProjScale');
+  const settingProjXVal         = document.getElementById('settingProjXVal');
+  const settingProjYVal         = document.getElementById('settingProjYVal');
+  const settingProjRotVal       = document.getElementById('settingProjRotVal');
+  const settingProjScaleVal     = document.getElementById('settingProjScaleVal');
+  const settingProjReset        = document.getElementById('settingProjReset');
+  let projBackup = null;
 
   const confirmModal     = document.getElementById('confirmModal');
   const confirmMsg       = document.getElementById('confirmMsg');
@@ -461,29 +716,48 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     const idx = programs.findIndex(p => p.id === currentId);
     const p = programs[idx];
 
-    // Active track's bg overrides program-level bg; fall back to program bg if track has none
-    let bgImagePath = p ? p.bgImagePath : null;
-    let bgVideoPath = p ? (p.bgVideoPath || null) : null;
+    // Active track's own background only; no program-level fallback
+    let bgImagePaths = [];
+    let bgVideoPaths = [];
     const tracks = p ? getTracks(p) : [];
     const activeTrack = tracks[currentTrackIndex] || null;
-    if (activeTrack && (activeTrack.bgImagePath || activeTrack.bgVideoPath)) {
-      bgImagePath = activeTrack.bgImagePath || null;
-      bgVideoPath = activeTrack.bgVideoPath || null;
+    if (activeTrack) {
+      bgImagePaths = getBgImages(activeTrack).map(x => x.path);
+      bgVideoPaths = getBgVideos(activeTrack).map(x => x.path);
     }
 
-    window.api.setDisplayState({
+    const state = {
       mode,
       settings: currentSettings,
       program: p ? {
         name: p.name, performer: p.performer,
-        bgColor: p.bgColor, bgImagePath, bgVideoPath,
+        bgColor: p.bgColor, bgImagePaths, bgVideoPaths,
         index: idx + 1, total: programs.length,
         trackTitle: activeTrack ? (activeTrack.title || '') : '',
-        trackIndex: tracks.length > 1 ? currentTrackIndex + 1 : 0,
-        trackTotal: tracks.length > 1 ? tracks.length : 0,
+        trackIndex: tracks.length ? currentTrackIndex + 1 : 0,
+        trackTotal: tracks.length,
       } : null
+    };
+    lastDisplayPayload = state;
+    window.api.setDisplayState(state);
+    postPreviewState(state);
+  }
+
+  function postPreviewState(state) {
+    if (!showPreview || !showPreview.contentWindow || !state) return;
+    try { showPreview.contentWindow.postMessage({ type: 'display:state', state }, '*'); } catch (_) {}
+  }
+
+  if (showPreview) {
+    showPreview.addEventListener('load', () => {
+      if (lastDisplayPayload) postPreviewState(lastDisplayPayload);
     });
   }
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'display:ready' && lastDisplayPayload) {
+      postPreviewState(lastDisplayPayload);
+    }
+  });
 
   // ---- Settings ----
   function getActiveWelcomeTracks() {
@@ -497,19 +771,170 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     const tracks = getActiveWelcomeTracks();
     if (tracks.length) {
       welcomeMusic.src = window.api.toUrl(tracks[0].path);
+      reapplySink();
     } else {
       welcomeMusic.removeAttribute('src');
     }
   }
 
+  // ---- Audio output (HDMI projector shares video+audio on one cable) ----
+  // Chromium does not follow the window onto the projector: music played in the
+  // control console still goes to Windows' default device unless we setSinkId.
+  const HDMI_AUDIO_RE = /hdmi|display\s*port|\bdp\b|projector|投影|digital\s*(output|audio)|display\s*audio|nvidia high definition|amd high definition audio|intel display/i;
+  const INTERNAL_AUDIO_RE = /speaker|扬声器|realtek|headphone|headset|internal|communications|通信|耳机|音频孔/i;
+
+  let lastAudioDevices = [];
+
+  function isHdmiAudioLabel(label) {
+    const s = label || '';
+    return HDMI_AUDIO_RE.test(s) && !/headphone|headset|耳机/i.test(s);
+  }
+
+  function describeSink(deviceId, devices) {
+    if (!deviceId) return '现走：电脑音频孔';
+    const d = (devices || lastAudioDevices).find(x => x.deviceId === deviceId);
+    const label = (d && d.label) || '';
+    if (isHdmiAudioLabel(label)) return '现走：投影仪';
+    if (!label || INTERNAL_AUDIO_RE.test(label)) return '现走：电脑音频孔';
+    return '现走：' + label;
+  }
+
+  function updateAudioOutNow(deviceId, devices) {
+    if (audioOutNow) audioOutNow.textContent = describeSink(deviceId, devices);
+  }
+
+  async function listAudioOutputs() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return [];
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      lastAudioDevices = devices.filter(d => d.kind === 'audiooutput');
+      return lastAudioDevices;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function pickHdmiDevice(devices) {
+    const named = devices.filter(d => d.deviceId && d.deviceId !== 'default' && d.deviceId !== 'communications');
+    return named.find(d => isHdmiAudioLabel(d.label))
+      || named.find(d => d.label && !INTERNAL_AUDIO_RE.test(d.label))
+      || null;
+  }
+
+  function deviceLabel(devices, deviceId) {
+    if (!deviceId) return '电脑音频孔';
+    const d = devices.find(x => x.deviceId === deviceId);
+    if (!d || !d.label) return '已选设备';
+    return isHdmiAudioLabel(d.label) ? ('投影仪 · ' + d.label) : d.label;
+  }
+
+  async function applyAudioSink(deviceId) {
+    const id = deviceId || '';
+    const els = [audioEl, welcomeMusic];
+    for (const el of els) {
+      if (typeof el.setSinkId === 'function') {
+        try { await el.setSinkId(id); } catch (_) {}
+      }
+    }
+    if (audioOutputSelect) audioOutputSelect.value = id;
+    if (settingAudioOutput) settingAudioOutput.value = id;
+    updateAudioOutNow(id, lastAudioDevices);
+  }
+
+  async function reapplySink() {
+    const id = (audioOutputSelect && audioOutputSelect.value) || currentSettings.audioOutputId || '';
+    await applyAudioSink(id);
+  }
+
+  function fillAudioOutputSelects(devices, selectedId) {
+    const usable = devices.filter(d => d.deviceId && d.deviceId !== 'default' && d.deviceId !== 'communications');
+    const useId = usable.some(d => d.deviceId === selectedId) ? selectedId : '';
+    [audioOutputSelect, settingAudioOutput].forEach(sel => {
+      if (!sel) return;
+      sel.innerHTML = '';
+      const def = document.createElement('option');
+      def.value = '';
+      def.textContent = '本机（电脑音频孔/扬声器）';
+      sel.appendChild(def);
+      usable.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.deviceId;
+        const prefix = isHdmiAudioLabel(d.label) ? '投影 · ' : '本机 · ';
+        opt.textContent = prefix + (d.label || ('音频设备 ' + d.deviceId.slice(0, 8)));
+        sel.appendChild(opt);
+      });
+      sel.value = useId;
+    });
+    updateAudioOutNow(useId, devices);
+    return useId;
+  }
+
+  async function refreshAudioOutputs(preferredId) {
+    const devices = await listAudioOutputs();
+    const want = preferredId !== undefined ? preferredId : (currentSettings.audioOutputId || '');
+    const useId = fillAudioOutputSelects(devices, want);
+    await applyAudioSink(useId);
+    return { devices, useId };
+  }
+
+  async function syncAudioOutputForLayout(preferredId) {
+    let dual = false;
+    try {
+      const info = await window.api.getLayoutInfo();
+      dual = !!(info && info.dual);
+    } catch (_) {}
+    const devices = await listAudioOutputs();
+    const saved = preferredId || '';
+    const savedOk = saved && devices.some(d => d.deviceId === saved);
+    if (dual) {
+      if (savedOk) {
+        fillAudioOutputSelects(devices, saved);
+        await applyAudioSink(saved);
+        return { devices, useId: saved, dual: true };
+      }
+      const hdmi = pickHdmiDevice(devices);
+      if (hdmi) {
+        fillAudioOutputSelects(devices, hdmi.deviceId);
+        await applyAudioSink(hdmi.deviceId);
+        await persistAudioOutputId(hdmi.deviceId);
+        return { devices, useId: hdmi.deviceId, dual: true };
+      }
+      fillAudioOutputSelects(devices, '');
+      await applyAudioSink('');
+      return { devices, useId: '', dual: true };
+    }
+    return Object.assign(await refreshAudioOutputs(saved), { dual: false });
+  }
+
+  async function persistAudioOutputId(deviceId) {
+    currentSettings.audioOutputId = deviceId || '';
+    await window.api.saveSettings(currentSettings);
+  }
+
+  async function onAudioOutputPicked(deviceId) {
+    await applyAudioSink(deviceId);
+    await persistAudioOutputId(deviceId);
+    const devices = await listAudioOutputs();
+    showToast('声音输出：' + deviceLabel(devices, deviceId));
+  }
+
+  audioOutputSelect.addEventListener('change', () => onAudioOutputPicked(audioOutputSelect.value));
+  settingAudioOutput.addEventListener('change', () => onAudioOutputPicked(settingAudioOutput.value));
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+    navigator.mediaDevices.addEventListener('devicechange', () => {
+      refreshAudioOutputs(currentSettings.audioOutputId || '');
+    });
+  }
+
   // Cycle through the welcome-music playlist: when one track ends, automatically move to
   // the next ENABLED track, looping back to the first after the last (this "rotation" is
   // expected once the operator has manually started playback).
-  welcomeMusic.addEventListener('ended', () => {
+  welcomeMusic.addEventListener('ended', async () => {
     const tracks = getActiveWelcomeTracks();
     if (!tracks.length) return;
     welcomeMusicIndex = (welcomeMusicIndex + 1) % tracks.length;
     welcomeMusic.src = window.api.toUrl(tracks[welcomeMusicIndex].path);
+    await reapplySink();
     welcomeMusic.play().catch(() => {});
   });
 
@@ -522,6 +947,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       .map(t => ({ ...t, id: t.id || tid() }));
     renderWelcomeMusicListEdit();
     pendingLogoPath = null;
+    refreshAudioOutputs(currentSettings.audioOutputId || '');
+    fillProjForm(currentSettings);
+    projBackup = {
+      projX: currentSettings.projX || 0,
+      projY: currentSettings.projY || 0,
+      projRot: currentSettings.projRot || 0,
+      projScale: currentSettings.projScale || 1
+    };
     settingsModal.classList.add('active');
   });
 
@@ -601,7 +1034,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       hospitalName:  settingHospitalName.value.trim(),
       titleZH:       settingTitleZH.value.trim() || '慰问演出',
       logoPath:      pendingLogoPath === '__CLEAR__' ? '' : (pendingLogoPath || currentSettings.logoPath || ''),
-      welcomeMusicTracks: pendingWelcomeMusicTracks.slice()
+      welcomeMusicTracks: pendingWelcomeMusicTracks.slice(),
+      audioOutputId: currentSettings.audioOutputId || '',
+      projX: Number(settingProjX.value) || 0,
+      projY: Number(settingProjY.value) || 0,
+      projRot: Number(settingProjRot.value) || 0,
+      projScale: Number(settingProjScale.value) || 1
     };
     await window.api.saveSettings(s);
     applySettings(s);
@@ -610,7 +1048,53 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     settingsModal.classList.remove('active');
     showToast('设置已保存');
   });
-  settingsCancelBtn.addEventListener('click', () => settingsModal.classList.remove('active'));
+  settingsCancelBtn.addEventListener('click', () => {
+    if (projBackup) {
+      currentSettings = { ...currentSettings, ...projBackup };
+      fillProjForm(currentSettings);
+      pushDisplay(showStarted ? 'stage' : 'welcome');
+    }
+    settingsModal.classList.remove('active');
+  });
+
+  function fillProjForm(s) {
+    settingProjX.value = s.projX || 0;
+    settingProjY.value = s.projY || 0;
+    settingProjRot.value = s.projRot || 0;
+    settingProjScale.value = s.projScale || 1;
+    updateProjLabels();
+  }
+  function updateProjLabels() {
+    const x = Number(settingProjX.value) || 0;
+    const y = Number(settingProjY.value) || 0;
+    const rot = Number(settingProjRot.value) || 0;
+    const scale = Number(settingProjScale.value) || 1;
+    settingProjXVal.textContent = (x > 0 ? '+' : '') + x;
+    settingProjYVal.textContent = y;
+    settingProjRotVal.textContent = (rot > 0 ? '+' : '') + Number(rot).toFixed(1) + '°';
+    settingProjScaleVal.textContent = Math.round(scale * 100) + '%';
+  }
+  function previewProjection() {
+    updateProjLabels();
+    currentSettings = {
+      ...currentSettings,
+      projX: Number(settingProjX.value) || 0,
+      projY: Number(settingProjY.value) || 0,
+      projRot: Number(settingProjRot.value) || 0,
+      projScale: Number(settingProjScale.value) || 1
+    };
+    pushDisplay(showStarted ? 'stage' : 'welcome');
+  }
+  [settingProjX, settingProjY, settingProjRot, settingProjScale].forEach(el => {
+    el.addEventListener('input', previewProjection);
+  });
+  settingProjReset.addEventListener('click', () => {
+    settingProjX.value = 0;
+    settingProjY.value = 0;
+    settingProjRot.value = 0;
+    settingProjScale.value = 1;
+    previewProjection();
+  });
 
   // ---- Projection control buttons ----
   // ---- Curtain / stage reveal helpers ----
@@ -645,6 +1129,42 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     showToast('投影已切换到演出画面');
   });
 
+  // Manually re-detect connected screens and re-place control/display windows.
+  // Purely on-demand: only runs when the operator clicks this button.
+  async function relayoutScreens() {
+    try {
+      const r = await window.api.relayoutWindows();
+      const devices = await listAudioOutputs();
+      fillAudioOutputSelects(devices, currentSettings.audioOutputId || '');
+      if (r && r.dual) {
+        const saved = currentSettings.audioOutputId || '';
+        const savedOk = saved && devices.some(d => d.deviceId === saved);
+        if (savedOk) {
+          await applyAudioSink(saved);
+          showToast(`已分屏 ${r.count} 屏，声音：${deviceLabel(devices, saved)}`);
+        } else {
+          const hdmi = pickHdmiDevice(devices);
+          if (hdmi) {
+            await applyAudioSink(hdmi.deviceId);
+            await persistAudioOutputId(hdmi.deviceId);
+            showToast(`已分屏，声音已切到投影：${hdmi.label || 'HDMI'}`);
+          } else {
+            await applyAudioSink('');
+            showToast(`已分屏 ${r.count} 屏。未找到 HDMI 音频，请在播放器「输出」或设置里选择`, 'warn');
+          }
+        }
+      } else {
+        // Single-screen preview: hear it on the laptop. Keep the saved HDMI id
+        // so the next dual-screen detection can reuse it.
+        await applyAudioSink('');
+        showToast(`仅检测到 ${r ? r.count : 1} 个屏幕，未分屏（画面并排预览，声音走本机）`);
+      }
+    } catch (err) {
+      showToast('屏幕检测失败：' + (err && err.message ? err.message : err));
+    }
+  }
+  relayoutBtn.addEventListener('click', relayoutScreens);
+
   // ---- Render list ----
   function renderList() {
     programList.innerHTML = '';
@@ -661,8 +1181,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       row.dataset.idx = idx;
       const tracks = getTracks(p);
       const musicTag = tracks.length
-        ? `<span class="tag on">音乐✓${tracks.length > 1 ? '×' + tracks.length : ''}</span>`
-        : `<span class="tag">音乐</span>`;
+        ? `<span class="tag on">曲目✓${tracks.length > 1 ? '×' + tracks.length : ''}</span>`
+        : `<span class="tag">曲目</span>`;
+      const bgN = tracks.reduce((n, t) => n + getBgImages(t).length + getBgVideos(t).length, 0);
+      const bgTag = `<span class="tag ${bgN ? 'on' : ''}">背景${bgN ? '✓' + (bgN > 1 ? '×' + bgN : '') : ''}</span>`;
       row.innerHTML = `
         <div class="drag-handle" title="拖动排序">⠿</div>
         <div class="program-num">${String(idx + 1).padStart(2, '0')}</div>
@@ -670,7 +1192,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           <div class="pname">${escapeHtml(p.name || '未命名节目')}</div>
           <div class="pperformer">${escapeHtml(p.performer || '—')}</div>
           <div class="program-meta">
-            ${p.bgVideoPath ? '<span class="tag on">视频✓</span>' : `<span class="tag ${p.bgImagePath ? 'on' : ''}">背景${p.bgImagePath ? '✓' : ''}</span>`}
+            ${bgTag}
             ${musicTag}
           </div>
         </div>
@@ -681,9 +1203,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         </div>`;
       row.addEventListener('click', (e) => {
         if (e.target.closest('.item-actions')) return;
+        const switching = currentId !== p.id;
         currentId = p.id;
+        if (switching) showCurtain();
         loadCurrent();
-        revealStage();
       });
       row.querySelector('[data-act="up"]').addEventListener('click',   (e) => { e.stopPropagation(); move(idx, -1); });
       row.querySelector('[data-act="down"]').addEventListener('click', (e) => { e.stopPropagation(); move(idx, 1); });
@@ -751,9 +1274,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       currentOrder.textContent = '';
       currentName.innerHTML = '<span class="empty-hint">暂无节目 · 请在左侧新增</span>';
       currentPerformer.textContent = '';
-      bgBlur.style.backgroundImage = '';
-      currentPanel.style.backgroundColor = '';
-      nextName.textContent = '—';
+      trackToolbar.classList.add('hidden');
       loadTrack();
       renderList(); return;
     }
@@ -761,19 +1282,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     currentOrder.textContent = `第 ${String(idx + 1).padStart(2, '0')} 场`;
     currentName.textContent  = p.name      || '未命名节目';
     currentPerformer.textContent = p.performer || '';
-
-    // Background preview (blurred overlay)
-    if (p.bgImagePath) {
-      bgBlur.style.backgroundImage = `url("${window.api.toUrl(p.bgImagePath)}")`;
-      currentPanel.style.backgroundColor = '';
-    } else {
-      bgBlur.style.backgroundImage = '';
-      currentPanel.style.backgroundColor = p.bgColor || PALETTE[0];
-    }
-
-    // Next program
-    const next = programs[idx + 1];
-    nextName.textContent = next ? next.name || '未命名' : '已是最后一个节目';
+    trackToolbar.classList.remove('hidden');
 
     loadTrack();
 
@@ -783,8 +1292,70 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     renderList();
   }
 
+  function updateNextBar() {
+    const p = programs.find(x => x.id === currentId);
+    const idx = programs.findIndex(x => x.id === currentId);
+    if (!p) { nextName.textContent = '—'; return; }
+    const tracks = getTracks(p);
+    if (tracks.length && currentTrackIndex < tracks.length - 1) {
+      const n = tracks[currentTrackIndex + 1];
+      nextName.textContent = `下一首：${n.title || n.name || '未命名'}`;
+      return;
+    }
+    const next = programs[idx + 1];
+    nextName.textContent = next ? `下一场：${next.name || '未命名'}` : '已是最后一个节目';
+  }
+
+  function renderSongList() {
+    songList.innerHTML = '';
+    const p = programs.find(x => x.id === currentId);
+    const tracks = getTracks(p);
+    if (!p) return;
+    if (!tracks.length) {
+      songList.innerHTML = '<div class="track-empty-hint">本场还没有曲目，请编辑节目添加</div>';
+      return;
+    }
+    tracks.forEach((t, i) => {
+      const row = document.createElement('div');
+      row.className = 'song-item' + (i === currentTrackIndex ? ' active' : '');
+      const hasBg = getBgImages(t).length || getBgVideos(t).length;
+      const meta = `${t.path ? '伴奏' : '现场'}${hasBg ? ' · 背景' : ''}`;
+      row.innerHTML = `<span class="track-num">${i + 1}</span><span class="song-item-title">${escapeHtml(t.title || t.name || '未命名')}</span><span class="song-item-meta">${meta}</span>`;
+      row.addEventListener('click', () => jumpToSong(i));
+      songList.appendChild(row);
+    });
+  }
+
+  let playToken = 0;
+  function playCurrentIfAny() {
+    if (!audioEl.getAttribute('src')) return;
+    const token = ++playToken;
+    const tryPlay = () => {
+      if (token !== playToken) return;
+      audioEl.play().catch(() => {});
+    };
+    if (audioEl.readyState >= 2) tryPlay();
+    else audioEl.addEventListener('canplay', tryPlay, { once: true });
+  }
+
+  function jumpToSong(index) {
+    currentTrackIndex = index;
+    loadTrack();
+  }
+
+  function togglePlay() {
+    if (!programs.find(x => x.id === currentId)) return;
+    if (audioEl.getAttribute('src') && !audioEl.paused) {
+      audioEl.pause();
+      return;
+    }
+    revealStage();
+    playCurrentIfAny();
+  }
+
   // ---- Load a specific track of the current program into the audio element ----
   function loadTrack() {
+    playToken++;
     audioEl.pause();
     seek.value = 0; seek.max = 100;
     curTime.textContent = '00:00'; durTime.textContent = '00:00';
@@ -793,42 +1364,46 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     const p = programs.find(x => x.id === currentId);
     const tracks = getTracks(p);
     const track = tracks[currentTrackIndex];
+    const progIdx = programs.findIndex(x => x.id === currentId);
 
-    if (track) {
+    if (track && track.path) {
       audioEl.src = window.api.toUrl(track.path);
       audioHint.textContent = track.name || '已加载音乐';
+      reapplySink();
+    } else if (track) {
+      audioEl.removeAttribute('src');
+      audioHint.textContent = '此曲无伴奏（现场）';
     } else {
       audioEl.removeAttribute('src');
-      audioHint.textContent = '未设置音乐';
+      audioHint.textContent = '未设置曲目';
     }
 
-    if (tracks.length > 1) {
+    if (tracks.length) {
       trackRow.classList.remove('hidden');
-      const hasBg = track && (track.bgImagePath || track.bgVideoPath);
-      trackInfo.textContent = `第 ${currentTrackIndex + 1}/${tracks.length} 首：${track ? (track.name || '') : ''}${hasBg ? ' 🖼' : ''}`;
-      trackPrevBtn.disabled = currentTrackIndex === 0;
-      trackNextBtn.disabled = currentTrackIndex === tracks.length - 1;
+      const hasBg = track && (getBgImages(track).length || getBgVideos(track).length);
+      const label = track ? (track.title || track.name || '未命名曲目') : '';
+      trackInfo.textContent = `第 ${currentTrackIndex + 1}/${tracks.length} 首：${label}${hasBg ? ' 🖼' : ''}`;
     } else {
       trackRow.classList.add('hidden');
     }
+
+    const atFirstSong = !tracks.length || currentTrackIndex === 0;
+    const atLastSong = !tracks.length || currentTrackIndex === tracks.length - 1;
+    trackPrevBtn.disabled = atFirstSong && progIdx <= 0;
+    trackNextBtn.disabled = atLastSong && (progIdx < 0 || progIdx >= programs.length - 1);
+
+    renderSongList();
+    updateNextBar();
 
     // Sync background to display window whenever track changes
     if (showStarted) pushDisplay('stage');
   }
 
-  trackPrevBtn.addEventListener('click', () => {
-    if (currentTrackIndex > 0) { currentTrackIndex--; loadTrack(); }
-  });
-  trackNextBtn.addEventListener('click', () => {
-    const tracks = getTracks(programs.find(x => x.id === currentId));
-    if (currentTrackIndex < tracks.length - 1) { currentTrackIndex++; loadTrack(); }
-  });
+  trackPrevBtn.addEventListener('click', () => stepSong(-1));
+  trackNextBtn.addEventListener('click', () => stepSong(1));
 
   // ---- Player ----
-  playBtn.addEventListener('click', () => {
-    if (!audioEl.getAttribute('src')) return;
-    audioEl.paused ? audioEl.play().catch(() => {}) : audioEl.pause();
-  });
+  playBtn.addEventListener('click', () => togglePlay());
   audioEl.addEventListener('play',  () => { playBtn.textContent = '❚❚'; });
   audioEl.addEventListener('pause', () => { playBtn.textContent = '▶'; });
   audioEl.addEventListener('loadedmetadata', () => {
@@ -844,37 +1419,46 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     const p = programs.find(x => x.id === currentId);
     const tracks = getTracks(p);
     if (currentTrackIndex < tracks.length - 1) {
-      // More tracks left in this program (same act, multiple songs): load the next song,
-      // curtain stays open, wait for manual play
-      currentTrackIndex++;
-      loadTrack();
+      jumpToSong(currentTrackIndex + 1);
       return;
     }
-    // Last track of this program finished: automatically close the curtain (welcome screen)
-    // and wait for the host's next announcement. Program list selection is left untouched —
-    // the operator manually clicks the next program when ready (see row click handler).
     showCurtain();
-    showToast('节目结束，投影已自动回到幕布');
+    showToast('本场结束，投影已闭幕');
   });
   seek.addEventListener('input',  () => { isSeeking = true; curTime.textContent = fmtTime(+seek.value); });
   seek.addEventListener('change', () => { audioEl.currentTime = +seek.value; isSeeking = false; });
   volume.addEventListener('input', () => { audioEl.volume = +volume.value; });
   audioEl.volume = +volume.value;
 
+  welcomeVolume.addEventListener('input', () => { welcomeMusic.volume = +welcomeVolume.value; });
+  welcomeMusic.volume = +welcomeVolume.value;
+
   function fmtTime(s) {
     s = Math.max(0, Math.floor(s || 0));
     return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
   }
 
-  function stepProgram(dir) {
-    const idx = programs.findIndex(p => p.id === currentId);
+  function stepSong(dir) {
+    const p = programs.find(x => x.id === currentId);
+    const tracks = getTracks(p);
+    const nextIdx = currentTrackIndex + dir;
+    if (tracks.length && nextIdx >= 0 && nextIdx < tracks.length) {
+      jumpToSong(nextIdx);
+      return;
+    }
+    const idx = programs.findIndex(x => x.id === currentId);
     const j = idx + dir;
     if (j < 0 || j >= programs.length) return;
     currentId = programs[j].id;
+    showCurtain();
     loadCurrent();
+    if (dir < 0) {
+      const prevTracks = getTracks(programs[j]);
+      if (prevTracks.length) jumpToSong(prevTracks.length - 1);
+    }
   }
-  prevBtn.addEventListener('click', () => stepProgram(-1));
-  nextBtn.addEventListener('click', () => stepProgram(1));
+  prevBtn.addEventListener('click', () => stepSong(-1));
+  nextBtn.addEventListener('click', () => stepSong(1));
 
   // ---- Keyboard shortcuts ----
   document.addEventListener('keydown', (e) => {
@@ -884,11 +1468,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     if (inModal && e.key !== 'Escape') return;
     if (!inModal && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
     switch (e.key) {
-      case ' ': e.preventDefault();
-        if (audioEl.getAttribute('src')) audioEl.paused ? audioEl.play().catch(() => {}) : audioEl.pause();
-        break;
-      case 'ArrowRight': case 'ArrowDown': e.preventDefault(); stepProgram(1);  break;
-      case 'ArrowLeft':  case 'ArrowUp':   e.preventDefault(); stepProgram(-1); break;
+      case ' ': e.preventDefault(); togglePlay(); break;
+      case 'ArrowRight': case 'ArrowDown': e.preventDefault(); stepSong(1);  break;
+      case 'ArrowLeft':  case 'ArrowUp':   e.preventDefault(); stepSong(-1); break;
       case 'Escape':
         if (drawerBackdrop.classList.contains('active'))  { drawerBackdrop.classList.remove('active'); break; }
         if (settingsModal.classList.contains('active'))   { settingsModal.classList.remove('active');  break; }
@@ -906,7 +1488,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     const result = await window.api.scanFolder(folderPath);
     if (!result.ok) { showToast('扫描失败：' + result.error, 'error'); return; }
     if (!result.programs.length) { showToast('未找到节目子文件夹', 'warn'); return; }
-    programs = result.programs; currentId = programs[0].id;
+    programs = result.programs;
+    programs.forEach(inheritProgramBgOntoTracks);
+    currentId = programs[0].id;
     await persistData(); loadCurrent();
     showToast(`已从文件夹加载 ${programs.length} 个节目`);
   });
@@ -923,88 +1507,103 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     if (data.error) { showToast('导入失败：格式不正确', 'error'); return; }
     const list = Array.isArray(data) ? data : (data.programs || []);
     if (!Array.isArray(list)) { showToast('导入失败：格式不正确', 'error'); return; }
-    programs = list.map(p => ({
-      id: cid(), name: p.name||'', performer: p.performer||'', bgColor: p.bgColor||PALETTE[0],
-      bgImagePath: p.bgImagePath||null, bgVideoPath: p.bgVideoPath||null, bgVideoName: p.bgVideoName||'',
-      audioTracks: Array.isArray(p.audioTracks) ? p.audioTracks.map(t => ({ id: tid(), path: t.path, name: t.name||'' }))
-        : (p.audioPath ? [{ id: tid(), path: p.audioPath, name: p.audioName||'' }] : [])
-    }));
+    programs = list.map(p => {
+      const np = {
+        id: cid(), name: p.name||'', performer: p.performer||'', bgColor: p.bgColor||PALETTE[0],
+        bgImagePaths: getBgImages(p), bgVideoPaths: getBgVideos(p),
+        audioTracks: Array.isArray(p.audioTracks) ? p.audioTracks.map(t => ({
+          id: tid(), path: t.path, name: t.name||'', title: t.title||'',
+          bgImagePaths: getBgImages(t), bgVideoPaths: getBgVideos(t)
+        }))
+          : (p.audioPath ? [{ id: tid(), path: p.audioPath, name: p.audioName||'' }] : [])
+      };
+      inheritProgramBgOntoTracks(np);
+      return np;
+    });
     currentId = programs.length ? programs[0].id : null;
     await persistData(); loadCurrent();
     showToast(`已导入 ${programs.length} 个节目`);
   });
 
   // ---- Editor drawer ----
-  function buildColorSwatches() {
-    colorSet.innerHTML = '';
-    PALETTE.forEach(c => {
-      const sw = document.createElement('button');
-      sw.className = 'swatch' + (c === pendingColor ? ' sel' : '');
-      sw.style.background = c;
-      sw.addEventListener('click', () => { pendingColor = c; buildColorSwatches(); });
-      colorSet.appendChild(sw);
-    });
-  }
-
   function openEditor(id) {
     editingId = id;
     const isNew = !id;
     drawerTitle.textContent = isNew ? '新增节目' : '编辑节目';
     deleteBtn.style.display = isNew ? 'none' : 'inline-block';
     const p = isNew ? null : programs.find(x => x.id === id);
-    fName.value = p ? p.name : ''; fPerformer.value = p ? p.performer : '';
-    pendingColor = p ? (p.bgColor || PALETTE[0]) : PALETTE[programs.length % PALETTE.length];
-    pendingImagePath = p ? p.bgImagePath : null; pendingImageName = p && p.bgImagePath ? '已设置图片' : '';
-    pendingVideoPath = p ? (p.bgVideoPath || null) : null; pendingVideoName = p ? (p.bgVideoName || '') : '';
+    if (p) inheritProgramBgOntoTracks(p);
+    fName.value = p ? p.name : '';
+    fPerformer.value = p ? p.performer : '';
     pendingAudioTracks = getTracks(p).map(t => ({
-      ...t, id: t.id || tid(),
-      title: t.title !== undefined ? t.title : t.name.replace(/\.[^.]+$/, '')
+      id: t.id || tid(),
+      path: t.path || '',
+      name: t.name || '',
+      title: t.title !== undefined ? t.title : (t.name || '').replace(/\.[^.]+$/, ''),
+      bgItems: trackBgItems(t)
     }));
-    imageName.textContent = pendingImageName || '未选择';
-    videoNameEl.textContent = pendingVideoPath ? (pendingVideoName || '已设置视频') : '未选择';
     renderTrackListEdit();
-    fImage.value = ''; fVideo.value = ''; fAudio.value = '';
-    buildColorSwatches();
     drawerBackdrop.classList.add('active');
   }
 
-  // ---- Track list editor (inside drawer) ----
   function renderTrackListEdit() {
     trackListEdit.innerHTML = '';
     if (!pendingAudioTracks.length) {
-      trackListEdit.innerHTML = '<div class="track-empty-hint">还没有添加音乐</div>';
+      trackListEdit.innerHTML = '<div class="track-empty-hint">还没有添加曲目。可选伴奏文件，或手动添加（无伴奏的独奏也可）。</div>';
       return;
     }
     pendingAudioTracks.forEach((t, i) => {
-      const hasBg = !!(t.bgVideoPath || t.bgImagePath);
-      const bgLabel = t.bgVideoPath ? `视频: ${t.bgVideoName || '已设置'}`
-                    : t.bgImagePath ? '图片: 已设置'
-                    : '无专属背景（沿用节目背景）';
+      if (!Array.isArray(t.bgItems)) t.bgItems = trackBgItems(t);
 
       const row = document.createElement('div');
-      row.className = 'track-edit-item';
-      row.style.cssText = 'flex-direction:column;align-items:stretch;';
+      row.className = 'track-edit-item track-card';
       row.innerHTML = `
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="track-num">${i + 1}</span>
-          <input type="text" class="t-title" value="${escapeHtml(t.title || '')}" placeholder="投影显示的歌名"
-            style="flex:1;background:var(--bg);border:1px solid var(--line);color:var(--cream);padding:5px 8px;border-radius:3px;font-size:13px;">
-          <div class="track-actions">
+        <div class="track-card-head">
+          <span class="track-num">第 ${i + 1} 首</span>
+          <div class="track-actions" style="margin-left:auto;">
             <button class="mini-btn" data-act="up" title="上移">↑</button>
             <button class="mini-btn" data-act="down" title="下移">↓</button>
-            <button class="mini-btn" data-act="del" title="删除">✕</button>
+            <button class="mini-btn" data-act="del" title="删除这首曲目">✕</button>
           </div>
         </div>
-        <div style="padding-left:20px;font-size:10px;color:var(--muted);margin-top:1px;">文件：${escapeHtml(t.name || '')}</div>
-        <div class="track-bg-row">
-          <span class="track-bg-info ${hasBg ? 'set' : ''}">${escapeHtml(bgLabel)}</span>
-          <label class="filebtn" style="padding:3px 8px;font-size:11px;cursor:pointer;">图片<input type="file" class="t-img" accept="image/*" style="display:none"></label>
-          <label class="filebtn" style="padding:3px 8px;font-size:11px;cursor:pointer;">视频<input type="file" class="t-vid" accept="video/*" style="display:none"></label>
-          ${hasBg ? '<button class="mini-btn" data-act="clr-bg" title="清除此曲专属背景" style="opacity:1">✕</button>' : ''}
+        <div class="track-card-row">
+          <span class="track-card-label">歌名</span>
+          <input type="text" class="t-title" value="${escapeHtml(t.title || '')}" placeholder="投影显示的歌名"
+            style="flex:1;background:var(--bg);border:1px solid var(--line);color:var(--cream);padding:5px 8px;border-radius:3px;font-size:13px;">
+        </div>
+        <div class="track-card-row">
+          <span class="track-card-label">伴奏</span>
+          <span class="track-name">${escapeHtml(t.path ? (t.name || '已设置伴奏') : '无伴奏 / 现场')}</span>
+          <button class="mini-btn" data-act="file" title="选择或更换伴奏文件">选/换</button>
+          <button class="mini-btn" data-act="clear-audio" title="清除伴奏（现场独奏）"${t.path ? '' : ' disabled'}>清除</button>
+        </div>
+        <div class="track-bg-editor">
+          <div class="track-bg-label">背景（图片或视频，可多份轮播；有视频时播视频）</div>
+          <div class="track-list-edit t-bg-list"></div>
+          <button type="button" class="filebtn mini" data-act="bg">＋ 添加背景</button>
         </div>`;
 
       row.querySelector('.t-title').addEventListener('input', (e) => {
         pendingAudioTracks[i].title = e.target.value;
+      });
+      row.querySelector('[data-act="file"]').addEventListener('click', async () => {
+        const files = await pickFiles('audio/*', false);
+        if (!files.length) return;
+        const copied = await copyFiles(files.slice(0, 1));
+        if (!copied.length) return;
+        pendingAudioTracks[i].path = copied[0].path;
+        pendingAudioTracks[i].name = copied[0].name;
+        if (!pendingAudioTracks[i].title) {
+          pendingAudioTracks[i].title = copied[0].name.replace(/\.[^.]+$/, '');
+        }
+        renderTrackListEdit();
+        showToast('已设置伴奏文件');
+      });
+      row.querySelector('[data-act="clear-audio"]').addEventListener('click', () => {
+        pendingAudioTracks[i].path = '';
+        pendingAudioTracks[i].name = '';
+        renderTrackListEdit();
+        showToast('已清除伴奏（现场）');
       });
       row.querySelector('[data-act="up"]').addEventListener('click', () => {
         if (i === 0) return;
@@ -1020,38 +1619,37 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         pendingAudioTracks.splice(i, 1);
         renderTrackListEdit();
       });
-      if (hasBg) {
-        row.querySelector('[data-act="clr-bg"]').addEventListener('click', () => {
-          pendingAudioTracks[i].bgImagePath = null;
-          pendingAudioTracks[i].bgVideoPath = null;
-          pendingAudioTracks[i].bgVideoName = '';
-          renderTrackListEdit();
-        });
-      }
-      row.querySelector('.t-img').addEventListener('change', async (e) => {
-        const file = e.target.files[0]; if (!file) return;
-        const r = await window.api.copyMedia(file.path);
-        if (r.ok) {
-          pendingAudioTracks[i].bgImagePath = r.path;
-          pendingAudioTracks[i].bgVideoPath = null;
-          pendingAudioTracks[i].bgVideoName = '';
-          renderTrackListEdit(); showToast('背景图片已设置');
-        } else { showToast('图片复制失败', 'error'); }
-        e.target.value = '';
+      renderMediaList(row.querySelector('.t-bg-list'), t.bgItems, {
+        emptyHint: '还没有背景',
+        onChange: () => renderTrackListEdit()
       });
-      row.querySelector('.t-vid').addEventListener('change', async (e) => {
-        const file = e.target.files[0]; if (!file) return;
-        const r = await window.api.copyMedia(file.path);
-        if (r.ok) {
-          pendingAudioTracks[i].bgVideoPath = r.path;
-          pendingAudioTracks[i].bgVideoName = file.name;
-          pendingAudioTracks[i].bgImagePath = null;
-          renderTrackListEdit(); showToast('背景视频已设置');
-        } else { showToast('视频复制失败', 'error'); }
-        e.target.value = '';
+      row.querySelector('[data-act="bg"]').addEventListener('click', async () => {
+        const files = await pickFiles('media/*', true);
+        if (!files.length) return;
+        const copied = await copyFiles(files);
+        if (!copied.length) return;
+        copied.forEach(item => {
+          t.bgItems.push({ ...item, kind: mediaKind(item.name || item.path) });
+        });
+        renderTrackListEdit();
+        showToast(`已添加 ${copied.length} 份背景`);
       });
 
       trackListEdit.appendChild(row);
+    });
+  }
+
+  function serializePendingTracks() {
+    return pendingAudioTracks.map(t => {
+      const split = splitBgItems(t.bgItems);
+      return {
+        id: t.id || tid(),
+        path: t.path || '',
+        name: t.name || '',
+        title: t.title || '',
+        bgImagePaths: split.bgImagePaths,
+        bgVideoPaths: split.bgVideoPaths
+      };
     });
   }
 
@@ -1059,56 +1657,55 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   cancelBtn.addEventListener('click', () => drawerBackdrop.classList.remove('active'));
   drawerBackdrop.addEventListener('click', (e) => { if (e.target === drawerBackdrop) drawerBackdrop.classList.remove('active'); });
 
-  fImage.addEventListener('change', async () => {
-    const file = fImage.files[0]; if (!file) return;
-    imageName.textContent = '复制中…';
-    const r = await window.api.copyMedia(file.path);
-    if (r.ok) { pendingImagePath = r.path; pendingImageName = file.name; imageName.textContent = file.name; }
-    else { imageName.textContent = '复制失败'; showToast('图片复制失败', 'error'); }
-    fImage.value = '';
-  });
-
-  fVideo.addEventListener('change', async () => {
-    const file = fVideo.files[0]; if (!file) return;
-    videoNameEl.textContent = '复制中…';
-    const r = await window.api.copyMedia(file.path);
-    if (r.ok) { pendingVideoPath = r.path; pendingVideoName = file.name; videoNameEl.textContent = file.name; }
-    else { videoNameEl.textContent = '复制失败'; showToast('视频复制失败', 'error'); }
-    fVideo.value = '';
-  });
-
-  clearVideoBtn.addEventListener('click', () => {
-    pendingVideoPath = null; pendingVideoName = '';
-    videoNameEl.textContent = '未选择';
-  });
-
-  // Add one or many audio tracks at once (multi-select supported); appends, never replaces
-  fAudio.addEventListener('change', async () => {
-    const files = Array.from(fAudio.files || []);
+  addTracksBtn.addEventListener('click', async () => {
+    const files = await pickFiles('audio/*', true);
     if (!files.length) return;
-    showToast(`正在添加 ${files.length} 首音乐…`);
-    for (const file of files) {
-      const r = await window.api.copyMedia(file.path);
-      if (r.ok) { pendingAudioTracks.push({ id: tid(), path: r.path, name: file.name, title: file.name.replace(/\.[^.]+$/, '') }); }
-      else { showToast(`「${file.name}」复制失败`, 'error'); }
-    }
+    showToast(`正在添加 ${files.length} 首曲目…`);
+    const copied = await copyFiles(files);
+    copied.forEach(item => {
+      pendingAudioTracks.push({
+        id: item.id, path: item.path, name: item.name,
+        title: item.name.replace(/\.[^.]+$/, ''),
+        bgItems: []
+      });
+    });
     renderTrackListEdit();
-    fAudio.value = '';
+    if (copied.length) showToast(`已添加 ${copied.length} 首曲目`);
+  });
+
+  addManualTrackBtn.addEventListener('click', () => {
+    pendingAudioTracks.push({
+      id: tid(), path: '', name: '', title: '',
+      bgItems: []
+    });
+    renderTrackListEdit();
+    const inputs = trackListEdit.querySelectorAll('.t-title');
+    const last = inputs[inputs.length - 1];
+    if (last) last.focus();
   });
 
   saveBtn.addEventListener('click', async () => {
+    const tracks = serializePendingTracks();
     if (editingId) {
       const p = programs.find(x => x.id === editingId);
-      p.name = fName.value.trim(); p.performer = fPerformer.value.trim();
-      p.bgColor = pendingColor; p.bgImagePath = pendingImagePath;
-      p.bgVideoPath = pendingVideoPath; p.bgVideoName = pendingVideoName;
-      p.audioTracks = pendingAudioTracks.slice();
+      p.name = fName.value.trim();
+      p.performer = fPerformer.value.trim();
+      p.bgColor = p.bgColor || PALETTE[0];
+      p.bgImagePaths = [];
+      p.bgVideoPaths = [];
+      delete p.bgImagePath; delete p.bgVideoPath; delete p.bgVideoName;
+      p.audioTracks = tracks;
       delete p.audioPath; delete p.audioName;
     } else {
-      const p = { id: cid(), name: fName.value.trim(), performer: fPerformer.value.trim(),
-        bgColor: pendingColor, bgImagePath: pendingImagePath,
-        bgVideoPath: pendingVideoPath, bgVideoName: pendingVideoName,
-        audioTracks: pendingAudioTracks.slice() };
+      const p = {
+        id: cid(),
+        name: fName.value.trim(),
+        performer: fPerformer.value.trim(),
+        bgColor: PALETTE[programs.length % PALETTE.length],
+        bgImagePaths: [],
+        bgVideoPaths: [],
+        audioTracks: tracks
+      };
       programs.push(p); currentId = p.id;
     }
     drawerBackdrop.classList.remove('active');
@@ -1131,10 +1728,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     if (!Array.isArray(p.audioTracks)) {
       p.audioTracks = p.audioPath ? [{ id: tid(), path: p.audioPath, name: p.audioName || '' }] : [];
     }
+    p.bgImagePaths = getBgImages(p);
+    p.bgVideoPaths = getBgVideos(p);
+    delete p.bgImagePath; delete p.bgVideoPath; delete p.bgVideoName;
+    p.audioTracks = p.audioTracks.map(t => {
+      t.bgImagePaths = getBgImages(t);
+      t.bgVideoPaths = getBgVideos(t);
+      delete t.bgImagePath; delete t.bgVideoPath; delete t.bgVideoName;
+      return t;
+    });
+    inheritProgramBgOntoTracks(p);
     return p;
   });
   currentId = programs.length ? programs[0].id : null;
   applySettings(settings);
+  await syncAudioOutputForLayout(settings.audioOutputId || '');
   // Send initial welcome state to display
   pushDisplay('welcome');
   loadCurrent();

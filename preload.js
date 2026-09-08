@@ -23,6 +23,10 @@ contextBridge.exposeInMainWorld('api', {
   // Send display state to projection window
   setDisplayState: (state) => ipcRenderer.invoke('display:setState', state),
 
+  // Re-detect connected screens and re-place control/display windows accordingly
+  relayoutWindows: () => ipcRenderer.invoke('windows:relayout'),
+  getLayoutInfo: () => ipcRenderer.invoke('windows:layoutInfo'),
+
   // Convert absolute Windows path to file:// URL
   toUrl: (absPath) => {
     if (!absPath) return null;
@@ -38,4 +42,6 @@ contextBridge.exposeInMainWorld('displayAPI', {
   },
   // Get initial state (settings + current program)
   getInitialState: () => ipcRenderer.invoke('display:getInitialState'),
+  // Read a local image (or the bundled flake logo if path is empty) as a data URL
+  readImageDataUrl: (filePath) => ipcRenderer.invoke('file:readAsDataUrl', filePath || ''),
 });

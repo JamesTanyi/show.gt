@@ -21,13 +21,30 @@
   --font-mono:'JetBrains Mono','Consolas',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-family:var(--font-body);overflow:hidden;}
+/* Never show the mouse arrow on the projection output — the operator's cursor
+   should be invisible to the audience even if it strays onto this screen. */
+html,body{
+  width:100%;height:100%;margin:0;
+  background:#000;color:var(--cream);font-family:var(--font-body);
+  overflow:hidden;cursor:none;
+}
+*{cursor:none !important;}
+html.preview, html.preview body, html.preview *{cursor:default !important;}
+html.preview{cursor:default;}
+#projFit{
+  position:absolute;inset:0;
+  background:var(--bg);
+  transform-origin:50% 50%;
+  will-change:transform;
+}
 
 /* ---- Welcome / curtain ---- */
 #welcome{
   position:absolute;inset:0;
   background:radial-gradient(ellipse at 50% 30%, #241627 0%, #0E0B10 65%);
   display:flex;align-items:center;justify-content:center;
+  /* Extra bottom inset so the Chinese subtitle stays inside projector overscan */
+  padding:4vh 5vw 16vh;
   transition:opacity .8s ease;
   z-index:10;
 }
@@ -48,24 +65,50 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
 .curtain-left.open{transform:translateX(-102%);}
 .curtain-right.open{transform:translateX(102%);}
 
-.welcome-content{position:relative;z-index:10;text-align:center;padding:40px;width:100%;max-width:1400px;}
+.welcome-content{
+  position:relative;z-index:10;text-align:center;
+  width:100%;max-width:1400px;
+  display:flex;flex-direction:column;align-items:center;
+  /* Arc glyph mass sits low in its box — lift the whole title group to true center */
+  transform:translateY(-10vh);
+}
 .hospital-logo{max-width:180px;max-height:180px;object-fit:contain;margin:0 auto 8px;display:block;filter:drop-shadow(0 4px 16px rgba(0,0,0,.5));}
-.title-arc{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 24px rgba(0,0,0,.5));}
+.title-arc{width:100%;height:auto;max-height:46vh;display:block;filter:drop-shadow(0 6px 24px rgba(0,0,0,.5));}
 .arc-text{font-family:'Fraunces','Noto Serif SC',serif;font-weight:700;font-style:italic;font-size:100px;letter-spacing:1px;fill:var(--gold-light);}
-.welcome-sub{margin-top:80px;color:var(--cream);opacity:.8;}
-.hospital-name-line{margin-top:-54px;font-family:'Fraunces','Noto Serif SC',serif;font-weight:400;font-style:italic;font-size:28px;letter-spacing:.06em;color:var(--cream);opacity:.9;}
-.welcome-sub p{margin:0;font-size:22px;letter-spacing:.3em;font-family:'Ma Shan Zheng','Noto Serif SC',cursive;}
+.hospital-name-line{
+  margin-top:clamp(4px,1vh,12px);
+  font-family:'Fraunces','Noto Serif SC',serif;font-weight:400;font-style:italic;
+  font-size:clamp(18px,2.4vw,28px);letter-spacing:.06em;color:var(--cream);opacity:.9;
+}
+.welcome-sub{margin-top:clamp(12px,2.6vh,28px);color:var(--cream);opacity:.8;width:100%;}
+.welcome-sub p{
+  margin:0;padding:0 4vw;
+  font-size:clamp(16px,2.1vw,26px);letter-spacing:.12em;line-height:1.5;
+  font-family:'Ma Shan Zheng','Noto Serif SC',cursive;
+  overflow-wrap:break-word;
+}
 
-/* ---- Logo snowflakes ---- */
-#snowflakes{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden;}
-.flake{position:absolute;top:0;object-fit:contain;will-change:transform,opacity;animation:flake-fall linear infinite;}
+/* ---- Logo snowflakes (rainbow W, like the concert curtain) ---- */
+#snowflakes{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:hidden;}
+.flake{
+  position:absolute;top:-12%;
+  will-change:transform;
+  animation:flake-fall linear infinite;
+}
+.flake-inner{
+  display:block;width:100%;height:auto;
+  background:transparent;
+  --r0:0deg;--r1:30deg;--sx:24px;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.28));
+  animation:flake-drift ease-in-out infinite alternate;
+}
 @keyframes flake-fall{
-  0%  {transform:translateY(-90px) translateX(0)           rotate(0deg);           opacity:0;}
-  6%  {opacity:1;}
-  30% {transform:translateY(30vh)  translateX(var(--sx))   rotate(calc(var(--r)*0.3));}
-  60% {transform:translateY(62vh)  translateX(calc(var(--sx)*-0.6)) rotate(calc(var(--r)*0.7));}
-  93% {opacity:0.7;}
-  100%{transform:translateY(112vh) translateX(0)           rotate(var(--r));        opacity:0;}
+  from{transform:translate3d(0,-6vh,0);}
+  to{transform:translate3d(0,118vh,0);}
+}
+@keyframes flake-drift{
+  from{transform:translateX(0) rotate(var(--r0));}
+  to{transform:translateX(var(--sx)) rotate(var(--r1));}
 }
 
 /* ---- Stage ---- */
@@ -76,14 +119,20 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
 }
 #stage::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.8) 100%);z-index:1;}
 
-/* Animated image background (Ken Burns effect) */
-#bgImage{
+/* Animated image background (Ken Burns + multi-image slideshow) */
+#bgSlides{
   position:absolute;inset:-8%;   /* extra space so panning never shows edge */
   width:116%;height:116%;
-  background-size:cover;background-position:center;
   display:none;
-  will-change:transform;
 }
+.bg-slide{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  opacity:0;
+  transition:opacity 1.4s ease;
+  will-change:transform,opacity;
+}
+.bg-slide.visible{opacity:1;}
 
 /* Four Ken Burns variants — each fires once, then holds at final frame */
 @keyframes kb-zoom-in  { from{transform:scale(1.0) translate(0%,0%)} to{transform:scale(1.15) translate(-2%,-1.5%)} }
@@ -91,23 +140,25 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
 @keyframes kb-pan-r    { from{transform:scale(1.1) translate(-3%,0%)} to{transform:scale(1.1) translate(3%,0%)} }
 @keyframes kb-pan-l    { from{transform:scale(1.1) translate(3%,0.5%)} to{transform:scale(1.1) translate(-3%,-0.5%)} }
 
-#bgImage.kb-a{animation:kb-zoom-in  28s ease-in-out both;}
-#bgImage.kb-b{animation:kb-zoom-out 28s ease-in-out both;}
-#bgImage.kb-c{animation:kb-pan-r    32s linear       both;}
-#bgImage.kb-d{animation:kb-pan-l    32s linear       both;}
+.bg-slide.kb-a{animation:kb-zoom-in  28s ease-in-out both;}
+.bg-slide.kb-b{animation:kb-zoom-out 28s ease-in-out both;}
+.bg-slide.kb-c{animation:kb-pan-r    32s linear       both;}
+.bg-slide.kb-d{animation:kb-pan-l    32s linear       both;}
+#bgSlides.slideshow .bg-slide.kb-a,
+#bgSlides.slideshow .bg-slide.kb-b,
+#bgSlides.slideshow .bg-slide.kb-c,
+#bgSlides.slideshow .bg-slide.kb-d{animation-duration:12s;}
 
 #bgVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
-.stage-frame{position:absolute;inset:20px;border:1px solid rgba(201,162,39,.3);pointer-events:none;z-index:2;}
-.stage-frame::before,.stage-frame::after{content:'';position:absolute;width:26px;height:26px;border:1px solid var(--gold);}
-.stage-frame::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
-.stage-frame::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
-.stage-info{position:relative;z-index:2;padding:50px 60px;width:100%;}
+.stage-info{position:relative;z-index:2;padding:4vh 6vw 11vh;width:100%;}
 .stage-eyebrow{font-family:var(--font-mono);font-size:13px;letter-spacing:.28em;color:var(--gold-light);text-transform:uppercase;margin-bottom:14px;}
+.stage-eyebrow:empty{display:none;margin:0;}
 .stage-title{font-family:var(--font-display);font-size:clamp(36px,5vw,72px);font-weight:700;margin:0 0 12px;line-height:1.15;}
 .stage-performer{font-size:18px;color:rgba(237,227,208,.7);letter-spacing:.04em;}
 </style>
 </head>
 <body>
+<div id="projFit">
 
 <!-- Welcome screen -->
 <div id="welcome">
@@ -116,7 +167,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
   <div id="snowflakes"></div>
   <div class="welcome-content">
     <img id="hospitalLogo" class="hospital-logo" style="display:none !important;" alt="">
-    <svg class="title-arc" viewBox="0 0 2000 900" preserveAspectRatio="xMidYMid meet">
+    <svg class="title-arc" viewBox="0 0 2000 620" preserveAspectRatio="xMidYMid meet">
       <defs><path id="arcPath" d="M 150 560 Q 1000 40 1850 560" fill="none"/></defs>
       <text class="arc-text">
         <textPath href="#arcPath" startOffset="50%" text-anchor="middle" textLength="1650" lengthAdjust="spacingAndGlyphs" id="arcText">Herbstkühle · Benefizkonzert</textPath>
@@ -131,9 +182,11 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
 
 <!-- Stage display -->
 <div id="stage">
-  <div id="bgImage"></div>
-  <video id="bgVideo" autoplay loop muted playsinline></video>
-  <div class="stage-frame"></div>
+  <div id="bgSlides">
+    <div class="bg-slide" id="bgSlideA"></div>
+    <div class="bg-slide" id="bgSlideB"></div>
+  </div>
+  <video id="bgVideo" autoplay muted playsinline></video>
   <div class="stage-info">
     <div class="stage-eyebrow" id="stageOrder"></div>
     <h2 class="stage-title" id="stageName"></h2>
@@ -141,8 +194,12 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
   </div>
 </div>
 
+</div>
 <script>
 (function () {
+  const isPreview = /(?:\?|&)preview=1(?:&|$)/.test(location.search);
+  if (isPreview) document.documentElement.classList.add('preview');
+
   const welcome       = document.getElementById('welcome');
   const curtainLeft   = document.getElementById('curtainLeft');
   const curtainRight  = document.getElementById('curtainRight');
@@ -151,7 +208,9 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
   const hospitalNameEl = document.getElementById('hospitalNameLine');
   const titleZhLineEl = document.getElementById('titleZhLine');
   const stage         = document.getElementById('stage');
-  const bgImage       = document.getElementById('bgImage');
+  const bgSlides      = document.getElementById('bgSlides');
+  const bgSlideA      = document.getElementById('bgSlideA');
+  const bgSlideB      = document.getElementById('bgSlideB');
   const bgVideo       = document.getElementById('bgVideo');
   const stageOrder    = document.getElementById('stageOrder');
   const stageName     = document.getElementById('stageName');
@@ -164,7 +223,97 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
 
   function toFileUrl(p) { return 'file:///' + p.replace(/\\/g, '/'); }
 
-  // ---- Remove light/white background from image via Canvas ----
+  // Flood-fill from edges: erase pixels similar to the corner background,
+  // then feather the outline and crop to the opaque bounding box.
+  function punchOutBackground(imageData) {
+    const { data, width, height } = imageData;
+    const n = width * height;
+    const pix = (x, y) => (y * width + x) * 4;
+    const corners = [[0, 0], [width - 1, 0], [0, height - 1], [width - 1, height - 1]];
+    let br = 0, bg = 0, bb = 0, ba = 0;
+    corners.forEach(([x, y]) => {
+      const i = pix(x, y);
+      br += data[i]; bg += data[i + 1]; bb += data[i + 2]; ba += data[i + 3];
+    });
+    br /= 4; bg /= 4; bb /= 4; ba /= 4;
+    if (ba < 128) return imageData;
+
+    const TOL = 48;
+    const tol2 = TOL * TOL;
+    const close = (i) => {
+      const dr = data[i] - br, dg = data[i + 1] - bg, db = data[i + 2] - bb;
+      return (dr * dr + dg * dg + db * db) <= tol2;
+    };
+
+    const visited = new Uint8Array(n);
+    const qx = new Int32Array(n);
+    const qy = new Int32Array(n);
+    let qh = 0, qt = 0;
+    const tryPush = (x, y) => {
+      if (x < 0 || y < 0 || x >= width || y >= height) return;
+      const p = y * width + x;
+      if (visited[p] || !close(p * 4)) return;
+      visited[p] = 1;
+      qx[qt] = x; qy[qt] = y; qt++;
+    };
+    for (let x = 0; x < width; x++) { tryPush(x, 0); tryPush(x, height - 1); }
+    for (let y = 0; y < height; y++) { tryPush(0, y); tryPush(width - 1, y); }
+    while (qh < qt) {
+      const x = qx[qh], y = qy[qh++];
+      data[pix(x, y) + 3] = 0;
+      tryPush(x + 1, y); tryPush(x - 1, y); tryPush(x, y + 1); tryPush(x, y - 1);
+    }
+
+    const nextA = new Uint8Array(n);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const p = y * width + x;
+        const i = p * 4;
+        nextA[p] = data[i + 3];
+        if (data[i + 3] === 0) continue;
+        const hasT =
+          (x > 0 && data[pix(x - 1, y) + 3] === 0) ||
+          (x < width - 1 && data[pix(x + 1, y) + 3] === 0) ||
+          (y > 0 && data[pix(x, y - 1) + 3] === 0) ||
+          (y < height - 1 && data[pix(x, y + 1) + 3] === 0);
+        if (!hasT) continue;
+        const dr = data[i] - br, dg = data[i + 1] - bg, db = data[i + 2] - bb;
+        const d = Math.sqrt(dr * dr + dg * dg + db * db);
+        nextA[p] = Math.max(0, Math.min(255, Math.round((d / TOL) * 255)));
+      }
+    }
+    for (let p = 0; p < n; p++) data[p * 4 + 3] = nextA[p];
+    return imageData;
+  }
+
+  function cropToOpaqueDataUrl(srcCanvas, imageData) {
+    const { data, width, height } = imageData;
+    let minX = width, minY = height, maxX = -1, maxY = -1;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (data[(y * width + x) * 4 + 3] > 8) {
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX < minX) return srcCanvas.toDataURL('image/png');
+    const pad = 2;
+    minX = Math.max(0, minX - pad);
+    minY = Math.max(0, minY - pad);
+    maxX = Math.min(width - 1, maxX + pad);
+    maxY = Math.min(height - 1, maxY + pad);
+    const cw = maxX - minX + 1;
+    const ch = maxY - minY + 1;
+    const out = document.createElement('canvas');
+    out.width = cw;
+    out.height = ch;
+    out.getContext('2d').drawImage(srcCanvas, minX, minY, cw, ch, 0, 0, cw, ch);
+    return out.toDataURL('image/png');
+  }
+
   function makeTransparentDataUrl(src) {
     return new Promise((resolve) => {
       const img = new Image();
@@ -172,20 +321,13 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
         const canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         ctx.drawImage(img, 0, 0);
         try {
           const id = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const d = id.data;
-          for (let i = 0; i < d.length; i += 4) {
-            const r = d[i], g = d[i+1], b = d[i+2];
-            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-            const sat = Math.max(r,g,b) === 0 ? 0 : (Math.max(r,g,b) - Math.min(r,g,b)) / Math.max(r,g,b);
-            // Erase pixels that are light (brightness > 155) and low-saturation (greyish/white)
-            if (brightness > 155 && sat < 0.28) d[i+3] = 0;
-          }
+          punchOutBackground(id);
           ctx.putImageData(id, 0, 0);
-          resolve(canvas.toDataURL('image/png'));
+          resolve(cropToOpaqueDataUrl(canvas, id));
         } catch (_) { resolve(src); }
       };
       img.onerror = () => resolve(src);
@@ -196,46 +338,63 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
   // ---- Spawn logo snowflakes ----
   const snowflakesEl = document.getElementById('snowflakes');
 
-  async function startSnowflakes(logoPath) {
+  async function startSnowflakes() {
     snowflakesEl.innerHTML = '';
-    if (!logoPath) return;
-    const dataUrl = await makeTransparentDataUrl(toFileUrl(logoPath));
-    const COUNT = 26;
-    for (let i = 0; i < COUNT; i++) {
-      const img = document.createElement('img');
-      img.className = 'flake';
-      img.src = dataUrl;
-      img.alt = '';
-      const size    = 56 + Math.random() * 104;         // 56 – 160 px
-      const left    = Math.random() * 100;               // 0 – 100 vw
-      const dur     = 18 + Math.random() * 22;           // 18 – 40 s
-      const delay   = -(Math.random() * dur);            // already mid-fall on load
-      const sway    = (Math.random() - 0.5) * 260;      // ± 130 px horizontal sway
-      const rot     = (Math.random() - 0.5) * 400;      // ± 200 deg rotation
-      const opacity = 0.35 + Math.random() * 0.55;      // 0.35 – 0.9
-      img.style.cssText =
-        `width:${size}px;height:${size}px;left:${left}%;opacity:${opacity};` +
-        `animation-duration:${dur}s;animation-delay:${delay}s;` +
-        `--sx:${sway}px;--r:${rot}deg;`;
-      snowflakesEl.appendChild(img);
+    let src = 'assets/logo-flake.png';
+    if (window.displayAPI && typeof window.displayAPI.readImageDataUrl === 'function') {
+      try {
+        const read = await window.displayAPI.readImageDataUrl('');
+        if (read && read.ok) src = read.dataUrl;
+      } catch (_) {}
     }
+    const COUNT = isPreview ? 9 : 18;
+    for (let i = 0; i < COUNT; i++) {
+      const wrap = document.createElement('div');
+      wrap.className = 'flake';
+      const img = document.createElement('img');
+      img.className = 'flake-inner';
+      img.src = src;
+      img.alt = '';
+      const size  = 22 + Math.random() * 24;
+      const left  = (i + Math.random() * 0.7) * (100 / COUNT);
+      const fall  = 16 + Math.random() * 14;
+      const delay = -(Math.random() * fall);
+      const sway  = (Math.random() < 0.5 ? -1 : 1) * (24 + Math.random() * 40);
+      const r0    = Math.random() * 360;
+      const r1    = r0 + (Math.random() < 0.5 ? -1 : 1) * (25 + Math.random() * 55);
+      const drift = 5 + Math.random() * 6;
+      wrap.style.cssText =
+        `left:${left}%;width:${size}px;animation-duration:${fall}s;animation-delay:${delay}s;`;
+      img.style.cssText =
+        `--sx:${sway}px;--r0:${r0}deg;--r1:${r1}deg;` +
+        `animation-duration:${drift}s;animation-delay:${delay}s;`;
+      wrap.appendChild(img);
+      snowflakesEl.appendChild(wrap);
+    }
+  }
+
+  function applyProjection(s) {
+    if (isPreview) return;
+    const x = Number(s && s.projX) || 0;
+    const y = Number(s && s.projY) || 0;
+    const rot = Number(s && s.projRot) || 0;
+    const scale = Number(s && s.projScale) || 1;
+    const el = document.getElementById('projFit');
+    if (!el) return;
+    el.style.transform =
+      `translate(${x}vw, ${-y}vh) rotate(${rot}deg) scale(${scale})`;
   }
 
   function applySettings(s) {
     arcTextEl.textContent      = s.titleDE || 'Herbstkühle · Benefizkonzert';
     hospitalNameEl.textContent = s.hospitalName || '';
     titleZhLineEl.textContent  = s.titleZH || '';
-    if (s.logoPath) {
-      hospitalLogo.src = toFileUrl(s.logoPath);
-      // logo shown only as snowflakes, not as a fixed header image
-      if (s.logoPath !== snowflakesLogoPath) {
-        snowflakesLogoPath = s.logoPath;
-        startSnowflakes(s.logoPath);
-      }
-    } else {
-      hospitalLogo.style.display = 'none';
-      snowflakesLogoPath = null;
-      snowflakesEl.innerHTML = '';
+    applyProjection(s);
+    hospitalLogo.style.display = 'none';
+    if (s.logoPath) hospitalLogo.src = toFileUrl(s.logoPath);
+    if (snowflakesLogoPath !== '__cutout__') {
+      snowflakesLogoPath = '__cutout__';
+      startSnowflakes();
     }
   }
 
@@ -250,50 +409,167 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
     }, 1100);
   }
 
-  function showStage(program) {
-    const isMultiTrack = program.trackTotal > 1;
-    if (isMultiTrack && program.trackTitle) {
-      // Multi-song program: show individual song title + act number
-      stageOrder.textContent = `第 ${String(program.index).padStart(2,'0')} 场 · ${program.trackIndex} / ${program.trackTotal}`;
-      stageName.textContent  = program.trackTitle;
+  const SLIDE_MS = 12000;
+  let slideTimer = null;
+  let slidePaths = [];
+  let slideIndex = 0;
+  let slideKey = '';
+  let activeSlide = bgSlideA;
+  let idleSlide = bgSlideB;
+
+  function stopSlideshow() {
+    if (slideTimer) { clearInterval(slideTimer); slideTimer = null; }
+    slideKey = '';
+    bgSlides.style.display = 'none';
+    bgSlides.classList.remove('slideshow');
+    [bgSlideA, bgSlideB].forEach(el => {
+      el.classList.remove('visible', ...KB_CLASSES);
+      el.style.backgroundImage = '';
+    });
+    activeSlide = bgSlideA;
+    idleSlide = bgSlideB;
+  }
+
+  function paintSlide(el, path) {
+    KB_CLASSES.forEach(c => el.classList.remove(c));
+    el.style.backgroundImage = `url("${toFileUrl(path)}")`;
+    void el.offsetWidth;
+    el.classList.add(KB_CLASSES[kbIdx % KB_CLASSES.length]);
+    kbIdx++;
+  }
+
+  function showSlide(index, instant) {
+    const path = slidePaths[index];
+    if (!path) return;
+    if (instant) {
+      activeSlide.style.transition = 'none';
+      idleSlide.style.transition = 'none';
+      idleSlide.classList.remove('visible');
+      paintSlide(activeSlide, path);
+      activeSlide.classList.add('visible');
+      void activeSlide.offsetWidth;
+      activeSlide.style.transition = '';
+      idleSlide.style.transition = '';
     } else {
-      stageOrder.textContent = `第 ${String(program.index).padStart(2,'0')} 场`;
-      stageName.textContent  = program.name || '未命名节目';
+      paintSlide(idleSlide, path);
+      idleSlide.classList.add('visible');
+      activeSlide.classList.remove('visible');
+      const tmp = activeSlide;
+      activeSlide = idleSlide;
+      idleSlide = tmp;
     }
+    const nxt = slidePaths[(index + 1) % slidePaths.length];
+    if (nxt && nxt !== path) {
+      const pre = new Image();
+      pre.src = toFileUrl(nxt);
+    }
+  }
+
+  function startSlideshow(paths) {
+    const next = (paths || []).filter(Boolean);
+    const key = next.join('|');
+    if (key === slideKey) return;
+    if (slideTimer) { clearInterval(slideTimer); slideTimer = null; }
+    slidePaths = next;
+    slideIndex = 0;
+    slideKey = key;
+    if (!slidePaths.length) { stopSlideshow(); return; }
+    bgSlides.style.display = 'block';
+    bgSlides.classList.toggle('slideshow', slidePaths.length > 1);
+    [bgSlideA, bgSlideB].forEach(el => el.classList.remove('visible', ...KB_CLASSES));
+    activeSlide = bgSlideA;
+    idleSlide = bgSlideB;
+    showSlide(0, true);
+    if (slidePaths.length > 1) {
+      slideTimer = setInterval(() => {
+        slideIndex = (slideIndex + 1) % slidePaths.length;
+        showSlide(slideIndex, false);
+      }, SLIDE_MS);
+    }
+  }
+
+  let videoPaths = [];
+  let videoIndex = 0;
+  let videoKey = '';
+  let playId = 0;
+
+  function stopVideoPlaylist() {
+    videoKey = '';
+    videoPaths = [];
+    videoIndex = 0;
+    playId++;
+    bgVideo.pause();
+    bgVideo.onended = null;
+    bgVideo.removeAttribute('src');
+    bgVideo.style.display = 'none';
+  }
+
+  function playVideoAt(index) {
+    const path = videoPaths[index];
+    if (!path) return;
+    const id = ++playId;
+    const url = toFileUrl(path);
+    if (bgVideo.src !== url) {
+      bgVideo.src = url;
+      bgVideo.load();
+    } else {
+      bgVideo.currentTime = 0;
+    }
+    bgVideo.style.display = 'block';
+    bgVideo.onended = () => {
+      if (id !== playId || !videoPaths.length) return;
+      videoIndex = (videoIndex + 1) % videoPaths.length;
+      playVideoAt(videoIndex);
+    };
+    bgVideo.play().catch(() => {});
+  }
+
+  function startVideoPlaylist(paths) {
+    const next = (paths || []).filter(Boolean);
+    const key = next.join('|');
+    if (key === videoKey) return;
+    stopSlideshow();
+    stopVideoPlaylist();
+    videoPaths = next;
+    videoKey = key;
+    videoIndex = 0;
+    if (!videoPaths.length) return;
+    playVideoAt(0);
+  }
+
+  function showStage(program) {
+    stageOrder.textContent = '';
+    stageName.textContent = program.trackTitle || program.name || '未命名节目';
     stagePerformer.textContent = program.performer || '';
 
-    if (program.bgVideoPath) {
-      // Video: hide image layer, play video
-      bgImage.style.display = 'none';
-      const url = toFileUrl(program.bgVideoPath);
-      if (bgVideo.src !== url) { bgVideo.src = url; bgVideo.load(); }
-      bgVideo.style.display = 'block';
+    const imagePaths = Array.isArray(program.bgImagePaths) && program.bgImagePaths.length
+      ? program.bgImagePaths
+      : (program.bgImagePath ? [program.bgImagePath] : []);
+    const videoList = Array.isArray(program.bgVideoPaths) && program.bgVideoPaths.length
+      ? program.bgVideoPaths
+      : (program.bgVideoPath ? [program.bgVideoPath] : []);
+
+    if (videoList.length) {
+      startVideoPlaylist(videoList);
       stage.style.backgroundColor = '#0E0B10';
-    } else if (program.bgImagePath) {
-      // Image: hide video, apply Ken Burns animation
-      bgVideo.pause(); bgVideo.src = ''; bgVideo.style.display = 'none';
-      bgImage.style.backgroundImage = `url("${toFileUrl(program.bgImagePath)}")`;
-      bgImage.style.display = 'block';
-      // Cycle through 4 animation variants; restart by forcing reflow
-      KB_CLASSES.forEach(c => bgImage.classList.remove(c));
-      void bgImage.offsetWidth;
-      bgImage.classList.add(KB_CLASSES[kbIdx % KB_CLASSES.length]);
-      kbIdx++;
+    } else if (imagePaths.length) {
+      stopVideoPlaylist();
+      startSlideshow(imagePaths);
       stage.style.backgroundColor = '#0E0B10';
     } else {
-      // Solid colour fallback
-      bgVideo.pause(); bgVideo.src = ''; bgVideo.style.display = 'none';
-      bgImage.style.display = 'none';
+      stopVideoPlaylist();
+      stopSlideshow();
       stage.style.backgroundColor = program.bgColor || '#7A1F3D';
     }
   }
 
-  // Listen for state updates from control window via main process
-  window.displayAPI.onState((state) => {
+  function applyIncomingState(state) {
+    if (!state) return;
     if (state.settings) applySettings(state.settings);
 
     if (state.mode === 'welcome') {
-      // Reset to welcome screen
+      stopSlideshow();
+      stopVideoPlaylist();
       curtainLeft.classList.remove('open');
       curtainRight.classList.remove('open');
       curtainOpen = false;
@@ -301,12 +577,22 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--cream);font-fa
     } else if (state.mode === 'stage' && state.program) {
       openCurtain(() => showStage(state.program));
     }
-  });
+  }
 
-  // Load initial settings on startup
-  window.displayAPI.getInitialState().then(state => {
-    if (state && state.settings) applySettings(state.settings);
+  if (window.displayAPI && typeof window.displayAPI.onState === 'function') {
+    window.displayAPI.onState(applyIncomingState);
+    window.displayAPI.getInitialState().then(state => {
+      if (state && state.settings) applySettings(state.settings);
+      if (state && state.mode) applyIncomingState(state);
+    });
+  }
+
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'display:state') applyIncomingState(e.data.state);
   });
+  if (isPreview && window.parent && window.parent !== window) {
+    try { window.parent.postMessage({ type: 'display:ready' }, '*'); } catch (_) {}
+  }
 })();
 </script>
 </body>
