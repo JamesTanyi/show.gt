@@ -155,6 +155,19 @@ html.preview{cursor:default;}
 .stage-eyebrow:empty{display:none;margin:0;}
 .stage-title{font-family:var(--font-display);font-size:clamp(36px,5vw,72px);font-weight:700;margin:0 0 12px;line-height:1.15;}
 .stage-performer{font-size:18px;color:rgba(237,227,208,.7);letter-spacing:.04em;}
+
+html.export-overlay,
+html.export-overlay body,
+html.export-overlay #projFit,
+html.export-overlay #stage{
+  background:#00FF00 !important;
+}
+html.export-overlay #welcome,
+html.export-overlay #snowflakes,
+html.export-overlay #bgSlides,
+html.export-overlay #bgVideo{
+  display:none !important;
+}
 </style>
 </head>
 <body>
@@ -198,6 +211,7 @@ html.preview{cursor:default;}
 <script>
 (function () {
   const isPreview = /(?:\?|&)preview=1(?:&|$)/.test(location.search);
+  const isExport = /(?:\?|&)export=1(?:&|$)/.test(location.search);
   if (isPreview) document.documentElement.classList.add('preview');
 
   const welcome       = document.getElementById('welcome');
@@ -374,7 +388,7 @@ html.preview{cursor:default;}
   }
 
   function applyProjection(s) {
-    if (isPreview) return;
+    if (isPreview || isExport) return;
     const x = Number(s && s.projX) || 0;
     const y = Number(s && s.projY) || 0;
     const rot = Number(s && s.projRot) || 0;
@@ -567,6 +581,21 @@ html.preview{cursor:default;}
     if (!state) return;
     if (state.settings) applySettings(state.settings);
 
+    if (state.mode === 'exportOverlay' && state.program) {
+      document.documentElement.classList.add('export-overlay');
+      stopSlideshow();
+      stopVideoPlaylist();
+      welcome.classList.add('hidden');
+      curtainOpen = true;
+      const program = state.program;
+      stageOrder.textContent = '';
+      stageName.textContent = program.trackTitle || program.name || '未命名节目';
+      stagePerformer.textContent = program.performer || '';
+      return;
+    }
+
+    document.documentElement.classList.remove('export-overlay');
+
     if (state.mode === 'welcome') {
       stopSlideshow();
       stopVideoPlaylist();
@@ -581,10 +610,12 @@ html.preview{cursor:default;}
 
   if (window.displayAPI && typeof window.displayAPI.onState === 'function') {
     window.displayAPI.onState(applyIncomingState);
-    window.displayAPI.getInitialState().then(state => {
-      if (state && state.settings) applySettings(state.settings);
-      if (state && state.mode) applyIncomingState(state);
-    });
+    if (!isExport) {
+      window.displayAPI.getInitialState().then(state => {
+        if (state && state.settings) applySettings(state.settings);
+        if (state && state.mode) applyIncomingState(state);
+      });
+    }
   }
 
   window.addEventListener('message', (e) => {

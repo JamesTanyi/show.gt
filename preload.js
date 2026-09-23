@@ -7,6 +7,13 @@ contextBridge.exposeInMainWorld('api', {
   saveData:     (data)   => ipcRenderer.invoke('data:save', data),
   exportData:   (data)   => ipcRenderer.invoke('data:export', data),
   importData:   ()       => ipcRenderer.invoke('data:import'),
+  chooseExportDir: ()    => ipcRenderer.invoke('export:chooseDir'),
+  exportMp4:    (job)    => ipcRenderer.invoke('export:mp4', job),
+  cancelExport: ()       => ipcRenderer.invoke('export:cancel'),
+  onExportProgress: (callback) => {
+    ipcRenderer.removeAllListeners('export:progress');
+    ipcRenderer.on('export:progress', (_event, data) => callback(data));
+  },
 
   // Settings
   getSettings:  ()       => ipcRenderer.invoke('settings:get'),

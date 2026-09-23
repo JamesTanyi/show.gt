@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, protocol, net, screen, powerSaveBlo
 const path = require('path');
 const fs = require('fs');
 const { execFile, execFileSync } = require('child_process');
+const { registerExportHandlers, cancelExport } = require('./export-mp4');
 
 // ---- Keep the machine awake for the whole session (show day: no screen-off, no sleep) ----
 let powerSaveBlockerId = null;
@@ -67,6 +68,7 @@ let replacingDisplay = false;
 function quitEntireApp() {
   if (isQuitting) return;
   isQuitting = true;
+  try { cancelExport(); } catch (_) {}
   stopPowerSaveBlocker();
   releaseCursorClip();
   destroyDisplayWindow();
@@ -560,6 +562,7 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   isQuitting = true;
+  try { cancelExport(); } catch (_) {}
   stopPowerSaveBlocker();
   releaseCursorClip();
   destroyDisplayWindow();
@@ -669,6 +672,11 @@ ipcMain.handle('windows:layoutInfo', () => ({
   dual: !!isDualMode,
   count: screen.getAllDisplays().length
 }));
+
+registerExportHandlers({
+  getControlWindow: () => controlWin,
+  webPrefs
+});
 
 // Re-detect connected screens on demand (button in control console only) —
 // e.g. after plugging in the projector while the app is already running.
