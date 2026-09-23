@@ -46,7 +46,7 @@ input,textarea{font-family:inherit;}
 .music-vol-group .icon-btn{border:none;border-radius:3px 0 0 3px;background:transparent;}
 .music-vol-group .icon-btn:hover{background:var(--surface-2);}
 .music-vol-group .icon-btn.active{background:var(--surface-2);}
-#welcomeVolume{width:70px;margin:0 8px;cursor:pointer;}
+.music-vol-group .vol-slider{margin:0 10px 0 8px;}
 
 /* ---- Main grid: sidebar + right panel ---- */
 .main-grid{flex:1 1 auto;display:grid;grid-template-columns:340px 1fr;min-height:0;}
@@ -157,8 +157,27 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 .transport button:hover{color:var(--gold-light);}
 .play-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--gold) !important;display:flex;align-items:center;justify-content:center;font-size:15px !important;}
 .play-btn:hover{background:var(--gold);color:#1a1420 !important;}
-.volume-row{display:flex;align-items:center;gap:8px;width:140px;}
-.vol-icon{font-size:13px;color:var(--muted);}
+.volume-row{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+.vol-icon{background:none;border:none;padding:2px;font-size:15px;line-height:1;color:var(--muted);width:24px;text-align:center;}
+.vol-icon:hover{filter:brightness(1.3);}
+/* 音量条：0–100%。主音量在轨道正上方每 10% 一条刻度线，只标注 50% 和 100%；幕间音乐（.sm）不带刻度 */
+.vol-slider{--r:0;--thumb:22px;--ty:24px;position:relative;width:170px;height:36px;flex:0 0 auto;}
+.vol-slider.sm{--ty:11px;width:110px;height:22px;}
+.vol-slider::before,.vol-slider::after{content:'';position:absolute;left:0;top:var(--ty);height:4px;margin-top:-2px;border-radius:2px;pointer-events:none;}
+.vol-slider::before{right:0;background:rgba(237,227,208,.14);}
+.vol-slider::after{width:calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--r));background:var(--gold);}
+.vol-ticks{position:absolute;left:calc(var(--thumb) / 2);right:calc(var(--thumb) / 2);top:calc(var(--ty) - 3px);height:0;pointer-events:none;}
+.vol-ticks i{position:absolute;bottom:0;width:1px;height:4px;margin-left:-.5px;background:rgba(237,227,208,.3);}
+.vol-ticks i.major{height:6px;background:rgba(237,227,208,.6);}
+.vol-ticks i.on{background:var(--gold);}
+.vol-ticks b{position:absolute;bottom:8px;transform:translateX(-50%);font:9px/1 var(--font-mono);font-weight:400;color:var(--muted);white-space:nowrap;}
+.vol-ticks b.end{transform:translateX(-75%);}
+.vol-slider input[type=range]{position:absolute;z-index:2;left:0;top:calc(var(--ty) - 11px);width:100%;height:22px;margin:0;background:transparent;cursor:pointer;display:block;}
+.vol-slider input[type=range]::-webkit-slider-thumb{width:var(--thumb);height:var(--thumb);opacity:0;}
+/* 圆点：原生滑块透明只负责拖动，这里画出圆点并在中间显示实际音量 */
+.vol-knob{position:absolute;z-index:3;left:calc((100% - var(--thumb)) * var(--r));top:calc(var(--ty) - var(--thumb) / 2);width:var(--thumb);height:var(--thumb);border-radius:50%;background:var(--gold-light);box-shadow:0 0 0 3px var(--bg-2);display:flex;align-items:center;justify-content:center;font:700 10px/1 var(--font-mono);color:#1a1420;letter-spacing:-.04em;pointer-events:none;}
+.vol-knob.muted{background:var(--muted);}
+.vol-slider:hover .vol-knob{box-shadow:0 0 0 3px var(--bg-2),0 0 0 7px rgba(201,162,39,.22);}
 .no-audio-hint{font-size:11px;color:var(--muted);font-family:var(--font-mono);}
 .audio-out-row{display:flex;align-items:center;gap:6px;min-width:0;}
 .audio-out-row label{font-size:11px;color:var(--muted);white-space:nowrap;}
@@ -234,7 +253,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <button class="icon-btn" id="showWelcomeBtn" title="让投影窗口显示欢迎幕布">🎭 幕布</button>
       <div class="music-vol-group">
         <button class="icon-btn" id="welcomeMusicBtn" title="手动播放/暂停开幕背景音乐">🎵 幕间音乐</button>
-        <input type="range" id="welcomeVolume" min="0" max="1" step="0.01" value="0.8" title="幕间音乐音量">
+        <div class="vol-slider sm">
+          <input type="range" id="welcomeVolume" min="0" max="100" step="1" value="80" title="幕间音乐音量">
+        </div>
       </div>
       <button class="icon-btn" id="startShowBtn" title="让投影窗口显示当前节目">▣ 演出</button>
       <button class="icon-btn" id="relayoutBtn" title="接上投影仪/外接屏后点击此按钮，重新检测屏幕并分屏显示">🖥 检测投影</button>
@@ -297,8 +318,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
             <button id="nextBtn" title="下一首，本场没有下一首则下一场 (→)">⏭</button>
           </div>
           <div class="volume-row">
-            <span class="vol-icon">♪</span>
-            <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8">
+            <button class="vol-icon" id="volumeIcon" title="点击静音 / 恢复">🔊</button>
+            <div class="vol-slider">
+              <input type="range" id="volume" min="0" max="100" step="1" value="80" title="音量">
+              <div class="vol-ticks"></div>
+            </div>
           </div>
           <div class="audio-out-row" title="HDMI 投影仪会同时传画面和声音，请选择投影对应的输出设备">
             <label>输出</label>
@@ -1427,11 +1451,64 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   });
   seek.addEventListener('input',  () => { isSeeking = true; curTime.textContent = fmtTime(+seek.value); });
   seek.addEventListener('change', () => { audioEl.currentTime = +seek.value; isSeeking = false; });
-  volume.addEventListener('input', () => { audioEl.volume = +volume.value; });
-  audioEl.volume = +volume.value;
-
-  welcomeVolume.addEventListener('input', () => { welcomeMusic.volume = +welcomeVolume.value; });
-  welcomeMusic.volume = +welcomeVolume.value;
+  // 音量条：0–100%；有 .vol-ticks 的画每 10% 一条刻度线，只标注 50% / 100%；滚轮一次跳到相邻 10%，点图标静音/恢复
+  function setupVolumeSlider(input, { name, icon, apply }) {
+    const tickBox = input.parentElement.querySelector('.vol-ticks');
+    const wrap = input.parentElement;
+    const ticks = [];
+    for (let v = 0; tickBox && v <= 100; v += 10) {
+      const t = document.createElement('i');
+      t.style.left = v + '%';
+      if (v === 50 || v === 100) {
+        t.className = 'major';
+        const label = document.createElement('b');
+        label.textContent = v + '%';
+        label.style.left = v + '%';
+        if (v === 100) label.className = 'end';
+        tickBox.appendChild(label);
+      }
+      t.dataset.v = v;
+      tickBox.appendChild(t);
+      ticks.push(t);
+    }
+    const knob = document.createElement('div');
+    knob.className = 'vol-knob';
+    wrap.appendChild(knob);
+    let lastNonZero = +input.value || 80;
+    function render() {
+      const v = +input.value;
+      wrap.style.setProperty('--r', v / 100);
+      ticks.forEach(t => t.classList.toggle('on', v > 0 && +t.dataset.v <= v));
+      knob.textContent = v;
+      knob.classList.toggle('muted', v === 0);
+      if (icon) icon.textContent = v === 0 ? '🔇' : v <= 33 ? '🔈' : v <= 66 ? '🔉' : '🔊';
+      input.title = `${name} ${v}% · 滚轮每次调 10%`;
+      apply(v / 100);
+    }
+    function set(v) {
+      input.value = Math.max(0, Math.min(100, v));
+      if (+input.value > 0) lastNonZero = +input.value;
+      render();
+    }
+    // 跳到相邻的 10% 刻度（例如 83% → 90% 或 80%）
+    function step(dir) {
+      const v = +input.value;
+      set(dir > 0 ? Math.floor(v / 10) * 10 + 10 : Math.ceil(v / 10) * 10 - 10);
+    }
+    input.addEventListener('input', () => set(+input.value));
+    wrap.addEventListener('wheel', (e) => { e.preventDefault(); step(e.deltaY < 0 ? 1 : -1); }, { passive: false });
+    if (icon) icon.addEventListener('click', () => set(+input.value > 0 ? 0 : lastNonZero));
+    render();
+    return { step };
+  }
+  const mainVolume = setupVolumeSlider(volume, {
+    name: '音量', icon: document.getElementById('volumeIcon'),
+    apply: (r) => { audioEl.volume = r; },
+  });
+  setupVolumeSlider(welcomeVolume, {
+    name: '幕间音乐音量',
+    apply: (r) => { welcomeMusic.volume = r; },
+  });
 
   function fmtTime(s) {
     s = Math.max(0, Math.floor(s || 0));
@@ -1471,6 +1548,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       case ' ': e.preventDefault(); togglePlay(); break;
       case 'ArrowRight': case 'ArrowDown': e.preventDefault(); stepSong(1);  break;
       case 'ArrowLeft':  case 'ArrowUp':   e.preventDefault(); stepSong(-1); break;
+      case '+': case '=': e.preventDefault(); mainVolume.step(1);  break;
+      case '-': case '_': e.preventDefault(); mainVolume.step(-1); break;
       case 'Escape':
         if (drawerBackdrop.classList.contains('active'))  { drawerBackdrop.classList.remove('active'); break; }
         if (settingsModal.classList.contains('active'))   { settingsModal.classList.remove('active');  break; }
